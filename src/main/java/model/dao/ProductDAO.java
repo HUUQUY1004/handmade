@@ -2,7 +2,9 @@ package model.dao;
 
 import model.adapter.InventoryProduct;
 import model.adapter.InventoryProductMappers;
+import model.bean.Image;
 import model.bean.Product;
+import model.bean.Rate;
 import model.db.JDBIConnector;
 import model.service.ImageService;
 
