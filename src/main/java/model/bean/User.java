@@ -2,6 +2,7 @@ package model.bean;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.lang.annotation.Target;
 
 public class User implements Serializable {
     private int id;

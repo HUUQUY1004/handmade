@@ -4,9 +4,12 @@ import model.bean.Discount;
 import model.bean.Product;
 import model.bean.Rate;
 import model.dao.ProductDAO;
+import model.dao.UserDAO;
+import model.db.JDBIConnector;
 
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 

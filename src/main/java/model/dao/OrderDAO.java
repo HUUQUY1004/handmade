@@ -2,10 +2,14 @@ package model.dao;
 
 import model.bean.*;
 import model.db.JDBIConnector;
+import model.service.DiscountService;
 import model.service.OrderService;
+import model.service.UserService;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 

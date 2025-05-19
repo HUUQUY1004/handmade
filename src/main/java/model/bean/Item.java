@@ -52,7 +52,7 @@ public class Item {
 
     }
     public void decQuantity(int quantity) {
-    this.quantity-=quantity;
-    if(this.quantity <= 0)this.quantity += quantity;
+        this.quantity-=quantity;
+        if(this.quantity <= 0)this.quantity += quantity;
     }
 }
