@@ -2,15 +2,12 @@ package model.dao;
 
 import model.adapter.InventoryProduct;
 import model.adapter.InventoryProductMappers;
-import model.bean.Image;
-import model.bean.Product;
-import model.bean.Rate;
+import model.bean.*;
 import model.db.JDBIConnector;
-import model.service.ImageService;
-
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
+import model.service.ImageService;
+import java.util.*;
 public class ProductDAO {
     //Tất cả các sản phẩm
     public static List<Product> getAll() {
@@ -889,7 +886,7 @@ public class ProductDAO {
 
     }
 
-//     GIẢM STOCK SARN PHAAM/
+    //     GIẢM STOCK SARN PHAAM/
     public static void reduceStock(int productId, int quantity) {
         String sql = "UPDATE  product SET stock = stock - :quantity WHERE id = :id";
 
@@ -961,4 +958,3 @@ public class ProductDAO {
         System.out.println(StockProduct(1));
     }
 }
-

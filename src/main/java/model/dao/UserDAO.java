@@ -3,8 +3,11 @@ package model.dao;
 import model.bean.User;
 import model.db.JDBIConnector;
 
+import java.sql.ResultSet;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class UserDAO {
@@ -255,7 +258,7 @@ public class UserDAO {
             return null;
         }
     }
-//    Thêm user đăng nhập bằng GG
+    //    Thêm user đăng nhập bằng GG
     public static void inserUserGG(String userName,String userTelephone,String userEmail,String password,String status,int roleId){
         JDBIConnector.me().useHandle(handle ->
                 handle.createUpdate("INSERT INTO user (name,phoneNumber,email,password,status,roleId)" +

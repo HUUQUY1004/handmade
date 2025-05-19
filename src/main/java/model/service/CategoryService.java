@@ -2,6 +2,7 @@ package model.service;
 
 import model.bean.Category;
 import model.dao.CategoryDAO;
+import org.checkerframework.checker.units.qual.C;
 
 import java.util.List;
 
@@ -44,4 +45,3 @@ public class CategoryService {
         return CategoryDAO.checkNoUsedCategoryById(id);
     }
 }
-

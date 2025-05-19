@@ -1,6 +1,10 @@
 package utils;
 
+import com.mysql.cj.util.Base64Decoder;
+import model.dao.UserDAO;
+
 import java.security.MessageDigest;
+import java.sql.SQLOutput;
 import java.util.Base64;
 
 public class HashPassword {
