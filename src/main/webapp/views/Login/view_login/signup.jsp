@@ -317,7 +317,9 @@
                                name="tel" id="tel"
                                maxlength="12"
 
-                               oninput="formatPhone(this); validatePhoneNumber()" required
+<%--                               formatPhone(this);--%>
+
+                               oninput="validatePhoneNumber()" required
 
 
                         >

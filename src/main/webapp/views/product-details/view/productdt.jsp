@@ -219,11 +219,18 @@
                     Thêm vào giỏ hàng
                 </button>
 
+
                 <% } else {%>
                 <a href="#relate" style="font-style: italic; font-size: 14px"> Xem các sản phẩm khác </a>
                 <%}%>
 
             </div>
+
+            <a class="order-btn" style="font-size: 16px" <%=request.getAttribute("disable")%>
+               href="<%=request.getContextPath()%>/order-custom?id=<%=product.getId()%>&category=<%=product.getCategoryId()%>"
+            >
+                Tùy chỉnh
+            </a>
 
 
             <hr class="mx-auto">
@@ -243,6 +250,13 @@
     </div>
 
 
+</section>
+
+<section>
+    <div class="contact">
+        <p>Liên hệ qua Zalo</p>
+        <img src="">
+    </div>
 </section>
 
 <section id="relate" class="mt-5 ">
