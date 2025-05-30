@@ -252,13 +252,6 @@
 
 </section>
 
-<section>
-    <div class="contact">
-        <p>Liên hệ qua Zalo</p>
-        <img src="">
-    </div>
-</section>
-
 <section id="relate" class="mt-5 ">
     <div class="container pb-4">
         <h4>Sản phẩm liên quan</h4>
