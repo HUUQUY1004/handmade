@@ -60,9 +60,10 @@ public class OrderCustomController extends HttpServlet {
 
         int productId = Integer.parseInt(req.getParameter("productId"));
 
-        String realPath = getServletContext().getRealPath("") + File.separator + SAVE_DIR;
-        File uploadDir = new File(realPath);
+        String uploadPath = "C:\\Users\\HP\\Desktop\\handmade\\handmade\\src\\main\\webapp\\images\\custom";
+        File uploadDir = new File(uploadPath);
         if (!uploadDir.exists()) uploadDir.mkdirs();
+
 
         String projectPath = System.getProperty("user.dir") + File.separator +
                 "src" + File.separator +
@@ -78,15 +79,9 @@ public class OrderCustomController extends HttpServlet {
 
         for (Part part : parts) {
             if (part.getName().equals("path") && part.getSize() > 0) {
-
                 String originalFileName = part.getSubmittedFileName();
-                if (originalFileName == null) {
-                    originalFileName = "image.jpg";
-                }
+                if (originalFileName == null) originalFileName = "image.jpg";
 
-                String fileNameWithoutExt = originalFileName.contains(".")
-                        ? originalFileName.substring(0, originalFileName.lastIndexOf('.'))
-                        : originalFileName;
                 String extension = originalFileName.contains(".")
                         ? originalFileName.substring(originalFileName.lastIndexOf('.'))
                         : ".jpg";
@@ -95,31 +90,29 @@ public class OrderCustomController extends HttpServlet {
 
                 String filename = user.getName() + "_" + productId + "_" + date + "_" + count + extension;
 
-                String savePath = realPath + File.separator + filename;
-                part.write(savePath);
-                savedImagePaths.add(SAVE_DIR + "/" + filename);
+                File destFile = new File(uploadPath, filename);
+                part.write(destFile.getAbsolutePath());
 
-                File uploadedFile = new File(realPath, filename);
-                File destinationFile = new File(projectPath, filename);
-
-                try {
-                    Files.copy(uploadedFile.toPath(), destinationFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                // Đường dẫn lưu trong DB: tương đối để dùng cho <img src="">
+                savedImagePaths.add("images/custom/" + filename);
 
                 count++;
             }
+
+
+            for (String imagePath : savedImagePaths) {
+                OrderImage image = new OrderImage();
+                image.setUserId(user.getId());
+                image.setProductId(productId);
+                image.setImagePath(imagePath);
+                image.setOrderDate(new Date());
+                image.setTel(tel);
+                image.setStatus(4);
+                OrderDAO.addOrderImage(image);
+            }
+
+            req.setAttribute("success", true);
+            req.getRequestDispatcher("/views/order-custom/custom_response.jsp").forward(req, resp);
         }
-
-        Order order = new Order();
-        order.setUserId(user.getId());
-        order.setNote(note);
-        order.setConsigneePhoneNumber(tel);
-        order.setStatus(4);
-
-
-        req.setAttribute("success", true);
-        req.getRequestDispatcher("/views/order-custom/custom_response.jsp").forward(req, resp);
     }
 }
