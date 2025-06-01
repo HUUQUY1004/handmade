@@ -317,6 +317,7 @@
                                name="tel" id="tel"
                                maxlength="12"
 
+
                                oninput="validatePhoneNumber()" required
 
 
