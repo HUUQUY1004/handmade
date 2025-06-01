@@ -521,7 +521,7 @@
         addToCartLink.addEventListener("click", function (event) {
             let actionCart = "post";
             $.ajax({
-                url: "/HandMadeStore/add-cart",
+                url: "/handmade_war/add-cart",
                 method: "POST",
                 data: {
                     id: <%=product.getId()%>,
