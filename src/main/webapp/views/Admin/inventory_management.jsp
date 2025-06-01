@@ -205,6 +205,7 @@
                         <th>Biến động giá</th>
                         <th>Nhập gần nhất</th>
                         <th>Trạng thái</th>
+                        <th>Đặt hàng trước</th>
                     </tr>
                     </thead>
 
@@ -370,11 +371,25 @@
                                         return 'Ngừng bán';
                                     } else if (data === "2") {
                                         return 'Hết hàng';
-                                    } else {
+                                    } else if (data === "3") {
+                                        return 'Được đặt trước'}
+                                    else{
                                         return 'Có sẵn';
                                     }
                                 }
                                 return data; // Trả về giá trị gốc trong các chế độ khác (sort, filter, type)
+                            }
+                        },
+                        {
+                            data: null,
+                            render: function (data, type, row) {
+                                if (type === 'display') {
+                                    if (row.isSale === "3") {
+                                        return '<button class="btn btn-info btn-sm" onclick="" (' + row.productId + ')">Xem chi tiết</button>';
+                                    }
+                                    return '';
+                                }
+                                return data;
                             }
                         }
                     ]
@@ -445,6 +460,56 @@
         document.getElementById("overlay").style.display = "none";
     }
 
+    function showPreOrderDetails(productId) {
+        $('#spinner-overlay').removeClass('d-none');
+        
+        $.ajax({
+            url: '/HandMadeStore/admin/preorder-details',
+            type: 'GET',
+            data: {id: productId},
+            success: function(response) {
+                // Create a modal to display the pre-order details
+                const modalHtml = `
+                    <div class="modal fade" id="preOrderModal" tabindex="-1" role="dialog" aria-labelledby="preOrderModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="preOrderModalLabel">Chi tiết đặt hàng trước</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    ${response}
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Remove existing modal if any
+                $('#preOrderModal').remove();
+                
+                // Append new modal to body
+                $('body').append(modalHtml);
+                
+                // Show the modal
+                $('#preOrderModal').modal('show');
+            },
+            error: function(error) {
+                console.log("Lỗi khi lấy thông tin đặt hàng trước: ", error);
+                alert("Có lỗi xảy ra khi lấy thông tin đặt hàng trước");
+            },
+            complete: function() {
+                setTimeout(function() {
+                    $('#spinner-overlay').addClass('d-none');
+                }, 1000);
+            }
+        });
+    }
 
 </script>
 </body>
