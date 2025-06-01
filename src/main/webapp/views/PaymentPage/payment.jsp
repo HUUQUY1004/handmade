@@ -196,10 +196,12 @@
                     </div>
                     <div class="mt-4">
 
-                        <div class="border alert alert-dismissible d-flex align-items-center">
+                        <div class="border alert alert-dismissible d-flex align-items-center payment-option" id="codOption">
                             <input class="form-check-input fs-5 me-3" style="cursor: pointer" type="radio"
                                    name="flexRadioDefault"
                                    id="thanhtoankhigiaohang"
+                                   name="flexRadioDefault"
+                                   value="COD"
                                    onclick="hideBankaccount_infor()" checked>
                             <label class="form-check-label" style="cursor: pointer" for="thanhtoankhigiaohang">
                                 Thanh toán khi giao hàng (COD)
@@ -209,6 +211,19 @@
                         <img src="" alt="">
                         <input type="hidden" id="shippingFeeInput" name="shippingFee" value="">
                         <input type="hidden" id="totalAmountInput" name="totalAmount" value="">
+                    </div>
+
+                    <div class="border alert alert-dismissible d-flex align-items-center payment-option" id="momoOption">
+                        <input class="form-check-input fs-5 me-3" style="cursor: pointer" type="radio"
+                               name="flexRadioDefault"
+                               id="momoPayment"
+                               name="flexRadioDefault"
+                               value="MOMO"
+                               onclick="hideBankaccount_infor()" checked>
+                        <label class="form-check-label" style="cursor: pointer" for="momoPayment">
+                            Thanh toán qua MOMO (Online)
+                        </label>
+                        <i class="fa-regular fa-money-bill-1 fa-xl ms-auto" style="color: #357ebd;"></i>
                     </div>
                 </div>
             </div>
@@ -369,55 +384,80 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     $(document).ready(function () {
+        //  SET default method payment
+        const codOption = document.getElementById('codOption');
+        const codRadio = document.getElementById('thanhtoankhigiaohang');
+
+        const paymentOptions = document.querySelectorAll('.payment-option');
+        const paymentRadios = document.querySelectorAll('input[name="flexRadioDefault"]');
+
+        paymentOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                // Bỏ highlight tất cả options
+                paymentOptions.forEach(opt => opt.classList.remove('selected'));
+
+                // Highlight option selected
+                this.classList.add('selected');
+
+                // Check radio button tương ứng
+                const radio = this.querySelector('input[type="radio"]');
+                radio.checked = true;
+
+                console.log('Payment method selected:', radio.value);
+                if (typeof hideBankaccount_infor === 'function') {
+                    hideBankaccount_infor();
+                }
+            });
+        });
         const startMillis = parseInt($('#paymentStartTime').val());
         const countDownEl = document.getElementById('count-down');
         const countdownTime = 1 * 60 * 1000; // 2 phút = 120000 ms
         const endTime = startMillis + countdownTime;
-        function updateCountdown() {
-            const now = Date.now();
-            if(endTime > now){
-                const timeLeft = endTime - now;
+        <%--function updateCountdown() {--%>
+        <%--    const now = Date.now();--%>
+        <%--    if(endTime > now){--%>
+        <%--        const timeLeft = endTime - now;--%>
 
-                if (timeLeft > 0) {
-                    const minutes = Math.floor(timeLeft / 1000 / 60);
-                    const seconds = Math.floor((timeLeft / 1000) % 60);
-                    console.log("m " + minutes + " s " + seconds)
-                    $('#count-down').html(`${minutes} phút ${seconds} giây`);
-                } else {
-                    console.log("Countdown topped");
-                    countDownEl.style.backgroundColor = '#8b8b8b'
-                    Swal.fire({
-                        title: "Đã hết thời gian!",
-                        timer: 5000,
-                        timerProgressBar: true,
-                        allowOutsideClick: false,
-                        allowEscapeKey: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
-                    }).then(() => {
-                        window.location.href = "/HandMadeStore/payment?backToCart=true"
-                    })
-                    clearInterval(countdownInterval);
-                }
-            }else {
-                console.log("Countdown topped");
-                countDownEl.style.backgroundColor = '#8b8b8b'
-                Swal.fire({
-                    title: "Đã hết thời gian!",
-                    timer: 5000,
-                    timerProgressBar: true,
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                }).then(() => {
-                    window.location.href = "/HandMadeStore/payment?backToCart=true"
-                })
-                clearInterval(countdownInterval);
-            }
-        }
+        <%--        if (timeLeft > 0) {--%>
+        <%--            const minutes = Math.floor(timeLeft / 1000 / 60);--%>
+        <%--            const seconds = Math.floor((timeLeft / 1000) % 60);--%>
+        <%--            console.log("m " + minutes + " s " + seconds)--%>
+        <%--            $('#count-down').html(`${minutes} phút ${seconds} giây`);--%>
+        <%--        } else {--%>
+        <%--            console.log("Countdown topped");--%>
+        <%--            countDownEl.style.backgroundColor = '#8b8b8b'--%>
+        <%--            Swal.fire({--%>
+        <%--                title: "Đã hết thời gian!",--%>
+        <%--                timer: 5000,--%>
+        <%--                timerProgressBar: true,--%>
+        <%--                allowOutsideClick: false,--%>
+        <%--                allowEscapeKey: false,--%>
+        <%--                didOpen: () => {--%>
+        <%--                    Swal.showLoading();--%>
+        <%--                }--%>
+        <%--            }).then(() => {--%>
+        <%--                window.location.href = "/handmade_war/payment?backToCart=true"--%>
+        <%--            })--%>
+        <%--            clearInterval(countdownInterval);--%>
+        <%--        }--%>
+        <%--    }else {--%>
+        <%--        console.log("Countdown topped");--%>
+        <%--        countDownEl.style.backgroundColor = '#8b8b8b'--%>
+        <%--        Swal.fire({--%>
+        <%--            title: "Đã hết thời gian!",--%>
+        <%--            timer: 5000,--%>
+        <%--            timerProgressBar: true,--%>
+        <%--            allowOutsideClick: false,--%>
+        <%--            allowEscapeKey: false,--%>
+        <%--            didOpen: () => {--%>
+        <%--                Swal.showLoading();--%>
+        <%--            }--%>
+        <%--        }).then(() => {--%>
+        <%--            window.location.href = "/handmade_war/payment?backToCart=true"--%>
+        <%--        })--%>
+        <%--        clearInterval(countdownInterval);--%>
+        <%--    }--%>
+        <%--}--%>
 
         const countdownInterval = setInterval(updateCountdown, 1000);
         updateCountdown(); // Cập nhật lần đầu tiên ngay khi trang được tải
@@ -460,7 +500,7 @@
         function calculateFeeShip(wardCode, districtId) {
             $.ajax({
                 type: "GET",
-                url: "/HandMadeStore/shippingFee",
+                url: "/handmade_war/shippingFee",
                 data: {
                     tempPrice: <%=totalMoney%>,
                     wardCode: wardCode,
@@ -497,7 +537,7 @@
         function fetchService(districtId) {
             $.ajax({
                 type: "GET",
-                url: "/HandMadeStore/service-api",
+                url: "/handmade_war/service-api",
                 data: {
                     districtId: districtId
                 },
@@ -525,7 +565,7 @@
         function fetchWards(districtId) {
             $.ajax({
                 type: "GET",
-                url: "/HandMadeStore/ward-api",
+                url: "/handmade_war/ward-api",
                 data: {
                     districtId: districtId
                 },
@@ -561,7 +601,7 @@
         function fetchDistricts(provinceId) {
             $.ajax({
                 type: "GET",
-                url: "/HandMadeStore/district-api",
+                url: "/handmade_war/district-api",
                 data: {
                     provinceId: provinceId
                 },
@@ -622,7 +662,7 @@
 
         $.ajax({
             type: "GET",
-            url: "/HandMadeStore/province-api",
+            url: "/handmade_war/province-api",
             success: function (response) {
                 var provinceDropDown = $("#provinceDropdown");
                 response.forEach(function (province) {
@@ -643,58 +683,63 @@
             var shippingFee = document.getElementById("shippingFeeInput").value;
             var totalAmount = document.getElementById("totalAmountInput").value;
 
+            //  Check method payment
+            const selectedPayment = document.querySelector('input[name="flexRadioDefault"]:checked');
+            const paymentMethod = selectedPayment ? selectedPayment.value : 'UNKNOWN';
+            console.log('Payment Method:', paymentMethod);
             console.log(totalAmount)
 
-            $.ajax({
-                type: "POST",
-                url: "/HandMadeStore/payment", // Đường dẫn đến servlet của bạn
-                data: {
-                    namePay: namePay,
-                    phonePay: phonePay,
-                    formattedAddress: formattedAddress,
-                    shippingFee: shippingFee,
-                    totalAmount: totalAmount
-                },
-                dataType: "json",
-                success: function (response) {
-                    if (response.success) {
-                        Swal.fire({
-                            title: "Cảm ơn bạn, đơn hàng đã được tạo!",
-                            width: 600,
-                            padding: "3em",
-                            color: "rgba(5,131,39,0.98)",
-                            background: "#fff url(/images/trees.png)",
-                            backdrop: `
-                                                       rgba(0,0,123,0.4)
-                                                      url("/images/nyan-cat.gif")
-                                                          left top
-                                                       no-repeat
-                        `,
-                            showConfirmButton: false,
-                            timer: 4000
-                        }).then(function () {
-                            window.location.href = "../../views/MainPage/view_mainpage/mainpage.jsp"; // Chuyển hướng về trang chủ
-                        });
-                    } else {
-                        console.log("Error:", response.message)
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Thời gian đã qua!',
-                            text: response.message,
-                            showConfirmButton: true
-                        });
-                    }
-                },
-                error: function (xhr, status, error) {
-                    // Xử lý lỗi nếu có
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Vui lòng điền đầy đủ thông tin.',
-                        text: 'Bạn chỉ có thể bỏ trống trường ghi chú.',
-                        showConfirmButton: true
-                    });
-                }
-            });
+            // $.ajax({
+            //     type: "POST",
+            //     url: "/handmade_war/payment",
+            //     data: {
+            //         namePay: namePay,
+            //         phonePay: phonePay,
+            //         formattedAddress: formattedAddress,
+            //         shippingFee: shippingFee,
+            //         totalAmount: totalAmount
+            //     },
+            //     dataType: "json",
+            //     success: function (response) {
+            //         if (response.success) {
+            //             Swal.fire({
+            //                 title: "Cảm ơn bạn, đơn hàng đã được tạo!",
+            //                 width: 600,
+            //                 padding: "3em",
+            //                 color: "rgba(5,131,39,0.98)",
+            //                 background: "#fff url(/images/trees.png)",
+            //                 backdrop: `
+            //                                            rgba(0,0,123,0.4)
+            //                                           url("/images/nyan-cat.gif")
+            //                                               left top
+            //                                            no-repeat
+            //             `,
+            //                 showConfirmButton: false,
+            //                 timer: 4000
+            //             }).then(function () {
+            //                 window.location.href = "../../views/MainPage/view_mainpage/mainpage.jsp"; // Chuyển hướng về trang chủ
+            //             });
+            //         } else {
+            //             console.log("Error:", response.message)
+            //             Swal.fire({
+            //                 icon: 'error',
+            //                 title: 'Thời gian đã qua!',
+            //                 text: response.message,
+            //                 showConfirmButton: true
+            //             });
+            //         }
+            //     },
+            //     error: function (xhr, status, error) {
+            //         // Xử lý lỗi nếu có
+            //         console.log("lõi", xhr)
+            //         Swal.fire({
+            //             icon: 'error',
+            //             title: 'Vui lòng điền đầy đủ thông tin.',
+            //             text: 'Bạn chỉ có thể bỏ trống trường ghi chú.',
+            //             showConfirmButton: true
+            //         });
+            //     }
+            // });
 
 
         })

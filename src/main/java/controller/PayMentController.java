@@ -25,7 +25,7 @@ import java.util.*;
 @WebServlet(name = "PaymentController", value = "/payment")
 public class PayMentController extends HttpServlet {
 
-    private static final int TIMEOUT_MINUTES = 1;
+    private static final int TIMEOUT_MINUTES = 2;
     private static final int TIMEOUT_SECONDS = TIMEOUT_MINUTES * 60;
 
     @Override

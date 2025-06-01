@@ -466,7 +466,7 @@ $(document).ready(function () {
     $("#btn-payment").click(function () {
         $.ajax({
             type:"GET",
-            url: "/payment",
+            url: "http://localhost:8080/handmade_war/payment",
             success: function (response) {
                 console.log("resp " , response)
 
