@@ -19,8 +19,13 @@ import java.util.List;
 
 @WebServlet("/productsPage")
 public class ProductPageController extends HttpServlet {
+    public ProductPageController() {
+        System.out.println("ProductPageController constructor called!");
+    }
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        System.out.println("hihihi");
         String categoryFilter = req.getParameter("categoryFilter");
         String isDiscount = req.getParameter("isDiscount");
         List<Product> products = (isDiscount == null || isDiscount.equals("false")) ?
