@@ -156,6 +156,17 @@
                     <%}%>
                     </span>
                 </a>
+
+                <a href="<%=request.getContextPath()%>/admin?func=order_custom_management"
+                   class="nav-item nav-link
+                    <%if(func.equals("order_custom_management")){%>
+                   active
+                    <%}%>"><i
+                        class="bi bi-minecart me-2"
+                ></i>
+                    Quản lý đơn hàng custom
+                </a>
+
                 <a href="<%=request.getContextPath()%>/admin?func=customer_management"
                    class="nav-item nav-link
                    <%if(func.equals("customer_management")){%>

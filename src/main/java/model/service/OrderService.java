@@ -3,6 +3,7 @@ package model.service;
 import model.bean.Discount;
 import model.bean.Order;
 import model.bean.OrderDetail;
+import model.bean.OrderImage;
 import model.dao.DiscountDAO;
 import model.dao.OrderDAO;
 
@@ -111,7 +112,19 @@ public class OrderService {
         return OrderDAO.getCancelOrderNumber(userId);
     }
 
+    public List<OrderImage> getAllOrderCustom(){
+        return OrderDAO.getAllOrderCustom();
+    }
+
     public static void main(String[] args) {
         System.out.println(getInstance().getOrderById("4444"));
+    }
+
+    public boolean updateOrderStatus(int orderId, int i) {
+        return OrderDAO.updateOrderStatus(orderId, i);
+    }
+
+    public List<OrderImage> getOrderCustomByCustomerId(int userId) {
+        return OrderDAO.getOrderCustomByCustomerId(userId);
     }
 }

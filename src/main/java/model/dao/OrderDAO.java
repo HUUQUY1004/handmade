@@ -225,6 +225,15 @@ public class OrderDAO {
                         .mapTo(Integer.class).one());
     }
 
+    public static List<OrderImage> getOrderCustomByCustomerId(int userId) {
+        List<OrderImage> orderImages = JDBIConnector.me().withHandle(detail_handle ->
+                detail_handle.createQuery("select * from order_images where userId=:userId")
+                        .bind("userId", userId)
+                        .mapToBean(OrderImage.class).stream().collect(Collectors.toList())
+        );
+        return orderImages;
+    }
+
     /**
      * Thêm giỏ hàng - đặt hàng vào dâtabase !
      *
@@ -316,6 +325,50 @@ public class OrderDAO {
             re += orderDetail.getQuantity() * orderDetail.getFinalSellingPrice();
 
         return re;
+    }
+
+    public static void addOrderImage(OrderImage orderImage) {
+        if (orderImage == null) {
+            throw new IllegalArgumentException("Đơn hàng custom không có");
+        }
+
+        String sql = "INSERT INTO order_images (imagePath, productId, orderDate, tel, note, userId, status) VALUES (:imagePath, :productId, :orderDate, :tel, :note, :userId, :status)";
+
+        try {
+            JDBIConnector.me().useHandle(handle -> {
+                handle.createUpdate(sql)
+                        .bind("productId", orderImage.getProductId())
+                        .bind("imagePath", orderImage.getImagePath())
+                        .bind("orderDate", orderImage.getOrderDate())
+                        .bind("tel", orderImage.getTel())
+                        .bind("note", orderImage.getNote())
+                        .bind("userId", orderImage.getUserId())
+                        .bind("status", orderImage.getStatus())
+                        .execute();
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Thêm đơn hàng custom thất bại", e);
+        }
+    }
+
+    public static List<OrderImage> getAllOrderCustom(){
+        List<OrderImage> orders_custom = JDBIConnector.me().withHandle(handle ->
+                handle.createQuery("select * from `order_images` ")
+                        .mapToBean(OrderImage.class)
+                        .stream().collect(Collectors.toList())
+        );
+        return orders_custom;
+    }
+
+    public static boolean updateOrderStatus(int orderId, int status) {
+        int result = JDBIConnector.me().withHandle(handle ->
+                handle.createUpdate("UPDATE `order_images` SET status = :status WHERE id = :id")
+                        .bind("status", status)
+                        .bind("id", orderId)
+                        .execute()
+        );
+        return result > 0;
     }
 
 

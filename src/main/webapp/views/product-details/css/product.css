@@ -284,6 +284,26 @@ font-family: 'Alumni Sans Inline One', sans-serif;
 
 }
 
+.order-btn {
+    font-weight: bold;
+    text-decoration: none;
+    background-color: #ff1a1a;
+    opacity: 1;
+    transition: 0.3s all;
+    color: #ffffff;
+    border: 0;
+    outline: none;
+    height: 36px;
+    padding: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+.order-btn:hover {
+    background-color: #e60000;
+    text-decoration: none;
+    color: #fff;
+}
+
  .ratings {
     color: #CACFD2;
      cursor: pointer;
