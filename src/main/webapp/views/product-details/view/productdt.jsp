@@ -172,6 +172,9 @@
                             case 2:
                                 status = "Tạm hết hàng";
                                 break;
+                            case 3:
+                                status = "Được đặt trước";
+                                break;
                         }
                     %>
                     <%=status%>
