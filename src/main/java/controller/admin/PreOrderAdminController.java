@@ -66,6 +66,14 @@ public class PreOrderAdminController extends HttpServlet {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             Date dateEnd = dateFormat.parse(dateEndStr);
             
+            // Add date validation check
+            if (dateEnd.before(new Date())) {
+                response.setContentType("application/json;charset=UTF-8");
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                response.getWriter().write("{\"status\":\"error\",\"message\":\"Ngày kết thúc phải sau ngày hiện tại\"}");
+                return;
+            }
+            
             // Create pre-order using service
             PreOrderService.getInstance().addPreOrder(productId, amount, dateEnd);
             
@@ -84,15 +92,17 @@ public class PreOrderAdminController extends HttpServlet {
                 );
             }
             
-            response.setContentType("application/json");
+            response.setContentType("application/json;charset=UTF-8");
             response.getWriter().write("{\"status\":\"success\"}");
             
         } catch (ParseException e) {
+            response.setContentType("application/json;charset=UTF-8");
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"status\":\"error\",\"message\":\"Invalid date format\"}");
+            response.getWriter().write("{\"status\":\"error\",\"message\":\"Định dạng ngày không hợp lệ\"}");
         } catch (NumberFormatException e) {
+            response.setContentType("application/json;charset=UTF-8");
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"status\":\"error\",\"message\":\"Invalid number format\"}");
+            response.getWriter().write("{\"status\":\"error\",\"message\":\"Định dạng số không hợp lệ\"}");
         }
     }
 
@@ -101,6 +111,14 @@ public class PreOrderAdminController extends HttpServlet {
         int productId = Integer.parseInt(request.getParameter("id"));
         PreOrder preOrder = PreOrderService.getInstance().getPreOrderById(productId);
         
+        response.setContentType("text/html;charset=UTF-8");
+        
+        if (preOrder == null) {
+            // Return empty string to indicate no pre-order exists
+            response.getWriter().write("");
+            return;
+        }
+        
         StringBuilder html = new StringBuilder();
         html.append("<div class='pre-order-details'>");
         html.append("<h4>Chi tiết đặt hàng trước</h4>");
@@ -108,18 +126,15 @@ public class PreOrderAdminController extends HttpServlet {
         html.append("<thead><tr><th>Tên sản phẩm</th><th>Số lượng</th><th>Ngày kết thúc</th></tr></thead>");
         html.append("<tbody>");
         
-        if (preOrder != null) {
-            html.append("<tr>");
-            html.append("<td>").append(preOrder.getProductName()).append("</td>");
-            html.append("<td>").append(preOrder.getAmount()).append("</td>");
-            html.append("<td>").append(new SimpleDateFormat("dd/MM/yyyy").format(preOrder.getDateEnd())).append("</td>");
-            html.append("</tr>");
-        }
+        html.append("<tr>");
+        html.append("<td>").append(preOrder.getProductName()).append("</td>");
+        html.append("<td>").append(preOrder.getAmount()).append("</td>");
+        html.append("<td>").append(new SimpleDateFormat("dd/MM/yyyy").format(preOrder.getDateEnd())).append("</td>");
+        html.append("</tr>");
         
         html.append("</tbody></table>");
         html.append("</div>");
         
-        response.setContentType("text/html");
         response.getWriter().write(html.toString());
     }
 
@@ -132,7 +147,7 @@ public class PreOrderAdminController extends HttpServlet {
                 for (PreOrder preOrder : allPreOrders) {
                     if (preOrder.getDateEnd().before(currentDate)) {
                         // Update product quantity
-                        Product product = ProductService.getInstance().getProductById(preOrder.getId());
+                        Product product = ProductService.getInstance().getProductById(preOrder.getProductId());
                         if (product != null) {
                             // Update product status to available (isSale = 1)
                             ProductService.getInstance().editProduct(

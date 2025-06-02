@@ -63,6 +63,9 @@ public class MainAdminController extends HttpServlet {
                     case "order_custom_management":
                         framePath = "/views/Admin/order_custom_management.jsp";
                         break;
+                    case "preorder_management":
+                        framePath = "/views/Admin/preorder-management.jsp";
+                        break;
                     default:
                         framePath = "/views/Admin/reference_statistics.jsp";
                         break;

@@ -8,13 +8,13 @@ import java.util.List;
 import java.util.Optional;
 
 public class PreOrderDAO {
-    public static PreOrder getPreOrderById(int id) {
+    public static PreOrder getPreOrderById(int productId) {
         Optional<PreOrder> preOrder = JDBIConnector.me().withHandle(handle ->
                 handle.createQuery("SELECT pror.id, prod.name as productName, pror.amount, pror.dateEnd " +
                                 "FROM pre_order pror " +
                                 "JOIN product prod ON pror.id = prod.id " +
-                                "WHERE pror.id = :id")
-                        .bind("id", id)
+                                "WHERE prod.id = :productId")
+                        .bind("productId", productId)
                         .mapToBean(PreOrder.class)
                         .stream()
                         .findFirst());
@@ -22,14 +22,16 @@ public class PreOrderDAO {
     }
     public static List<PreOrder> getAllPreOrder() {
         return JDBIConnector.me().withHandle(handle ->
-                handle.createQuery("SELECT pror.id, prod.name, FROM pre_order pror")
+                handle.createQuery("SELECT pror.id, prod.name as productName, pror.amount, pror.dateEnd " +
+                                "FROM pre_order pror " +
+                                "JOIN product prod ON pror.id = prod.id")
                         .mapToBean(PreOrder.class)
                         .stream().toList());
     }
 
     public static void addPreOrder(int id, int amount, Date dateEnd) {
         JDBIConnector.me().useHandle(handle ->
-                handle.createUpdate("INSERT INTO pre_order (id, amount, date_end) VALUES (:id, :amount, :dateEnd)")
+                handle.createUpdate("INSERT INTO pre_order (id, amount, dateEnd) VALUES (:id, :amount, :dateEnd)")
                         .bind("id", id)
                         .bind("amount", amount)
                         .bind("dateEnd", dateEnd)
@@ -38,7 +40,7 @@ public class PreOrderDAO {
     }
     public static void removePreOrderById(int id){
         JDBIConnector.me().useHandle(handle ->
-                handle.createUpdate("DELETE * FROM pre_order WHERE id=:id")
+                handle.createUpdate("DELETE FROM pre_order WHERE id=:id")
                         .bind("id", id)
                         .execute());
     }

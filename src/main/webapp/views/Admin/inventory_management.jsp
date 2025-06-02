@@ -385,7 +385,7 @@
                             render: function (data, type, row) {
                                 if (type === 'display') {
                                     if (row.isSale === "3") {
-                                        return '<button class="btn btn-info btn-sm" onclick="" (' + row.productId + ')">Xem chi tiết</button>';
+                                        return '<button class="btn btn-info btn-sm" onclick="handlePreOrder(' + row.productId + ')">Xem chi tiết</button>';
                                     }
                                     return '';
                                 }
@@ -460,48 +460,132 @@
         document.getElementById("overlay").style.display = "none";
     }
 
-    function showPreOrderDetails(productId) {
+    function showPreOrderDetails(detailsHtml) {
+        const modalHtml = `
+            <div class="modal fade" id="preOrderModal" tabindex="-1" role="dialog" aria-labelledby="preOrderModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="preOrderModalLabel">Chi tiết đặt hàng trước</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            ${detailsHtml}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        $('#preOrderModal').remove();
+        $('body').append(modalHtml);
+        $('#preOrderModal').modal('show');
+    }
+
+    function showCreatePreOrderForm(productId) {
+        const modalHtml = `
+            <div class="modal fade" id="preOrderModal" tabindex="-1" role="dialog" aria-labelledby="preOrderModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="preOrderModalLabel">Tạo đặt hàng trước</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="createPreOrderForm">
+                                <input type="hidden" id="productId" value="${productId}">
+                                <div class="form-group mb-3">
+                                    <label for="amount" class="form-label">Số lượng:</label>
+                                    <input type="number" class="form-control" id="amount" required min="1">
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="dateEnd" class="form-label">Ngày kết thúc:</label>
+                                    <input type="date" class="form-control" id="dateEnd" required>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                            <button type="button" class="btn btn-primary" onclick="createPreOrder()">Tạo</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        $('#preOrderModal').remove();
+        $('body').append(modalHtml);
+        $('#preOrderModal').modal('show');
+    }
+
+    function handlePreOrder(productId) {
         $('#spinner-overlay').removeClass('d-none');
         
         $.ajax({
-            url: '/HandMadeStore/admin/preorder-details',
+            url: '/HandMadeStore/admin/preorder/details',
             type: 'GET',
             data: {id: productId},
             success: function(response) {
-                // Create a modal to display the pre-order details
-                const modalHtml = `
-                    <div class="modal fade" id="preOrderModal" tabindex="-1" role="dialog" aria-labelledby="preOrderModalLabel" aria-hidden="true">
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="preOrderModalLabel">Chi tiết đặt hàng trước</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                                <div class="modal-body">
-                                    ${response}
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                
-                // Remove existing modal if any
-                $('#preOrderModal').remove();
-                
-                // Append new modal to body
-                $('body').append(modalHtml);
-                
-                // Show the modal
-                $('#preOrderModal').modal('show');
+                console.log("Response:", response); // Debug log
+                if (!response || response.trim() === '') {
+                    console.log("No pre-order exists, showing create form"); // Debug log
+                    showCreatePreOrderForm(productId);
+                } else {
+                    console.log("Pre-order exists, showing details"); // Debug log
+                    showPreOrderDetails(response);
+                }
             },
             error: function(error) {
-                console.log("Lỗi khi lấy thông tin đặt hàng trước: ", error);
-                alert("Có lỗi xảy ra khi lấy thông tin đặt hàng trước");
+                console.log("Error getting pre-order details:", error); // Debug log
+                showCreatePreOrderForm(productId);
+            },
+            complete: function() {
+                setTimeout(function() {
+                    $('#spinner-overlay').addClass('d-none');
+                }, 1000);
+            }
+        });
+    }
+
+    function createPreOrder() {
+        const productId = $('#productId').val();
+        const amount = $('#amount').val();
+        const dateEnd = $('#dateEnd').val();
+
+        if (!amount || !dateEnd) {
+            alert('Vui lòng điền đầy đủ thông tin');
+            return;
+        }
+
+        $('#spinner-overlay').removeClass('d-none');
+
+        $.ajax({
+            url: '/HandMadeStore/admin/preorder/create',
+            type: 'POST',
+            data: {
+                productId: productId,
+                amount: amount,
+                dateEnd: dateEnd
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    alert('Tạo đặt hàng trước thành công');
+                    $('#preOrderModal').modal('hide');
+                    location.reload();
+                } else {
+                    alert('Có lỗi xảy ra: ' + response.message);
+                }
+            },
+            error: function(xhr) {
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    alert(response.message);
+                } catch (e) {
+                    alert("Có lỗi xảy ra khi tạo đặt hàng trước");
+                }
             },
             complete: function() {
                 setTimeout(function() {
