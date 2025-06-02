@@ -21,6 +21,7 @@ public class OrderCustomAdminController extends HttpServlet {
 
             if ("confirm".equals(action)) {
                 OrderService.getInstance().updateOrderStatus(orderId, 1);
+
                 response.getWriter().write("success");
             } else if ("cancel".equals(action)) {
                 OrderService.getInstance().updateOrderStatus(orderId, 4);

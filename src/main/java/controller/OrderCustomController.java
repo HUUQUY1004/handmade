@@ -107,7 +107,7 @@ public class OrderCustomController extends HttpServlet {
                 image.setImagePath(imagePath);
                 image.setOrderDate(new Date());
                 image.setTel(tel);
-                image.setStatus(4);
+                image.setStatus(0);
                 OrderDAO.addOrderImage(image);
             }
 
