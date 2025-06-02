@@ -172,14 +172,6 @@
                                 <input type="hidden" id="formattedAddress" name="formattedAddress">
 
                                 <div class="form-floating mb-3">
-                                    <select id="serviceDropdown" class="form-select"
-                                            aria-label="Chọn dịch vụ vận chuyển">
-                                        <option value="">Chọn dịch vụ</option>
-                                    </select>
-                                    <label for="serviceDropdown">Dịch vụ vận chuyên</label>
-                                </div>
-
-                                <div class="form-floating mb-3">
                                     <textarea id="note" name="notePay" class="form-control"
                                               style="height: 150%"></textarea>
                                     <label for="address" class="floatingInput">Ghi Chú(Tùy Chọn)</label>
@@ -324,6 +316,7 @@
                                 </th>
                                 <td class="text-end pe-3"><%=numberFormat.format(totalMoney)%>
                                 </td>
+                                <input type="hidden" id="valueOfGoods" value=<%=totalMoney%>>
                             </tr>
                             <tr>
                                 <th class="text-start fw-medium">
@@ -384,6 +377,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     $(document).ready(function () {
+
         //  SET default method payment
         const codOption = document.getElementById('codOption');
         const codRadio = document.getElementById('thanhtoankhigiaohang');
@@ -473,13 +467,13 @@
 
 
     $("#address").on("input", function () {
-        updateFormattedAddress();
+        updateFormattedAddressAndShip();
     });
 
-    function updateFormattedAddress() {
-        // var provinceAddress = $("#provinceDropdown option:selected").text();
-        // var district = $("#districtDropdown option:selected").text();
-        // var ward = $("#wardDropdown option:selected").text();
+    function updateFormattedAddressAndShip() {
+        var provinceAddress = $("#provinceDropdown option:selected").text();
+        var district = $("#districtDropdown option:selected").text();
+        var ward = $("#wardDropdown option:selected").text();
         var address = $("#address").val();
         var formatted = "";
 
@@ -488,194 +482,45 @@
         } else {
             formatted = address + wardAddress + districtAddress + provinceAddress;
         }
+
         console.log(formatted)
         document.getElementById('formattedAddress').value = formatted;
     }
+    <%--function calculateFeeShip() {--%>
+    <%--    $.ajax({--%>
+    <%--        type: "GET",--%>
+    <%--        url: "/handmade_war/shippingFee",--%>
+    <%--        data: {--%>
+    <%--            tempPrice: <%=totalMoney%>,--%>
+    <%--            wardCode: wardCode,--%>
+    <%--            districtId: districtId,--%>
+    <%--            totalWeight: 1000--%>
+    <%--        },--%>
+    <%--        dataType: "json",--%>
+    <%--        success: function (response) {--%>
+    <%--            var shippingFee = response.data.total + 25000;--%>
+    <%--            var totalMoney = <%=totalMoney%>;--%>
+    <%--            var totalAmount = totalMoney + shippingFee;--%>
+    <%--            // Lưu giá trị vào 2 trường input :--%>
+    <%--            $('#shippingFeeInput').val(shippingFee);--%>
+    <%--            $('#totalAmountInput').val(totalAmount);--%>
 
 
-    //      LẤY TỈNH THÀNH.
+    <%--            // Định dạng thành tiền Việt Nam đồng--%>
+    <%--            var formattedShippingFee = formatCurrency(shippingFee);--%>
+    <%--            var formattedTotalAmount = formatCurrency(totalAmount);--%>
+
+
+    <%--            //hien thi shipping fee--%>
+    <%--            $('#shippingFeeResult').text(formattedShippingFee);--%>
+    <%--            $('#totalAmount').text(formattedTotalAmount);--%>
+    <%--        }, error: function (xhr, status, error) {--%>
+    <%--            console.log("Failed fetch ship: ", error);--%>
+    <%--            alert("Không tính được phí ship.");--%>
+    <%--        }--%>
+    <%--    })--%>
+    <%--}--%>
     $(document).ready(function () {
-        // tinh phi van chuyen
-
-        function calculateFeeShip(wardCode, districtId) {
-            $.ajax({
-                type: "GET",
-                url: "/handmade_war/shippingFee",
-                data: {
-                    tempPrice: <%=totalMoney%>,
-                    wardCode: wardCode,
-                    districtId: districtId,
-                    totalWeight: 1000
-                },
-                dataType: "json",
-                success: function (response) {
-                    var shippingFee = response.data.total + 25000;
-                    var totalMoney = <%=totalMoney%>;
-                    var totalAmount = totalMoney + shippingFee;
-                    // Lưu giá trị vào 2 trường input :
-                    $('#shippingFeeInput').val(shippingFee);
-                    $('#totalAmountInput').val(totalAmount);
-
-
-                    // Định dạng thành tiền Việt Nam đồng
-                    var formattedShippingFee = formatCurrency(shippingFee);
-                    var formattedTotalAmount = formatCurrency(totalAmount);
-
-
-                    //hien thi shipping fee
-                    $('#shippingFeeResult').text(formattedShippingFee);
-                    $('#totalAmount').text(formattedTotalAmount);
-                }, error: function (xhr, status, error) {
-                    console.log("Failed fetch ship: ", error);
-                    alert("Không tính được phí ship.");
-                }
-            })
-        }
-
-        // dich vu van chuyen
-
-        function fetchService(districtId) {
-            $.ajax({
-                type: "GET",
-                url: "/handmade_war/service-api",
-                data: {
-                    districtId: districtId
-                },
-                dataType: "json",
-                success: function (response) {
-                    console.log(response);
-                    $("#serviceDropdown").empty();
-
-                    var serviceDropdown = $("#serviceDropdown");
-                    response.forEach(function (service) {
-                            var option = $("<option>").val(service.serviceId).text(service.serviceName);
-                            serviceDropdown.append(option);
-                        }
-                    );
-
-                }, error: function (xhr, status, error) {
-                    alert("Không lấy đươợc dịch vụ vận chuyển.");
-                }
-            })
-
-        }
-
-
-        //lấy xã, thị trấn.
-        function fetchWards(districtId) {
-            $.ajax({
-                type: "GET",
-                url: "/handmade_war/ward-api",
-                data: {
-                    districtId: districtId
-                },
-                dataType: "json",
-                success: function (response) {
-                    console.log(response);
-                    $("#wardDropdown").empty();
-
-                    var wardDropdown = $("#wardDropdown");
-                    response.forEach(function (ward) {
-                            var option = $("<option>").val(ward.wardId).text(ward.wardName);
-                            wardDropdown.append(option);
-                        }
-                    );
-
-                    //change cho drowdown ward
-                    wardDropdown.off('change').on('change', function () {
-                        var wardCode = $(this).val();
-                        wardAddress = ", " + $("#wardDropdown option:selected").text();
-                        calculateFeeShip(wardCode, districtId);
-                        updateFormattedAddress();
-                    })
-
-                }, error: function (xhr, status, error) {
-                    alert("Không lấy đươợc danh sách xã, thị trấn.");
-                }
-            })
-
-        }
-
-
-        // Lấy quận huyện.
-        function fetchDistricts(provinceId) {
-            $.ajax({
-                type: "GET",
-                url: "/handmade_war/district-api",
-                data: {
-                    provinceId: provinceId
-                },
-                dataType: "json",
-                success: function (response) {
-                    console.log(response);
-                    $("#districtDropdown").empty();
-                    $("#wardDropdown").empty();
-
-                    var districtDropdown = $("#districtDropdown");
-                    response.forEach(function (district) {
-                            var option = $("<option>").val(district.districtId).text(district.districtName);
-                            districtDropdown.append(option);
-                        }
-                    );
-
-                }, error: function (xhr, status, error) {
-                    alert("Không lấy đươợc danh sách quận, huyện.");
-                }
-            })
-
-        }
-
-        // Sự kiện select province cho district
-        $("#provinceDropdown").change(function () {
-            var selectedProvinceId = $(this).val(); // lay id province duoc chon
-            if (selectedProvinceId) {
-                fetchDistricts(selectedProvinceId);
-            } else {
-                $("#districtDropdown").empty();
-            }
-            provinceAddress = ", " + $("#provinceDropdown option:selected").text();
-            updateFormattedAddress();
-        })
-
-        // Sự kiện select district cho ward
-        $("#districtDropdown").change(function () {
-            var selectedDistrictId = $(this).val(); // lay id district duoc chon
-            if (selectedDistrictId) {
-                fetchWards(selectedDistrictId);
-            } else {
-                $("#wardDropdown").empty();
-            }
-            districtAddress = ", " + $("#districtDropdown option:selected").text();
-            updateFormattedAddress();
-        })
-
-        // Sự kiện select district cho service
-        $("#districtDropdown").change(function () {
-            var selectedDistrictId = $(this).val(); // lay id district duoc chon
-            if (selectedDistrictId) {
-                fetchService(selectedDistrictId);
-            } else {
-                $("#serviceDropdown").empty();
-            }
-        })
-
-
-        $.ajax({
-            type: "GET",
-            url: "/handmade_war/province-api",
-            success: function (response) {
-                var provinceDropDown = $("#provinceDropdown");
-                response.forEach(function (province) {
-                    var option = $("<option>").val(province.provinceId).text(province.provinceName);
-                    provinceDropDown.append(option);
-                });
-            },
-            error: function (xhr, status, error) {
-                alert("Lỗi tải dữ liệu tỉnh, thành " + error)
-            }
-        })
-
-
         $("#placeOrderBtn").on("click", function () {
             var namePay = document.getElementById("name").value;
             var phonePay = document.getElementById("phone_number").value;
@@ -689,57 +534,88 @@
             console.log('Payment Method:', paymentMethod);
             console.log(totalAmount)
 
-            // $.ajax({
-            //     type: "POST",
-            //     url: "/handmade_war/payment",
-            //     data: {
-            //         namePay: namePay,
-            //         phonePay: phonePay,
-            //         formattedAddress: formattedAddress,
-            //         shippingFee: shippingFee,
-            //         totalAmount: totalAmount
-            //     },
-            //     dataType: "json",
-            //     success: function (response) {
-            //         if (response.success) {
-            //             Swal.fire({
-            //                 title: "Cảm ơn bạn, đơn hàng đã được tạo!",
-            //                 width: 600,
-            //                 padding: "3em",
-            //                 color: "rgba(5,131,39,0.98)",
-            //                 background: "#fff url(/images/trees.png)",
-            //                 backdrop: `
-            //                                            rgba(0,0,123,0.4)
-            //                                           url("/images/nyan-cat.gif")
-            //                                               left top
-            //                                            no-repeat
-            //             `,
-            //                 showConfirmButton: false,
-            //                 timer: 4000
-            //             }).then(function () {
-            //                 window.location.href = "../../views/MainPage/view_mainpage/mainpage.jsp"; // Chuyển hướng về trang chủ
-            //             });
-            //         } else {
-            //             console.log("Error:", response.message)
-            //             Swal.fire({
-            //                 icon: 'error',
-            //                 title: 'Thời gian đã qua!',
-            //                 text: response.message,
-            //                 showConfirmButton: true
-            //             });
-            //         }
-            //     },
-            //     error: function (xhr, status, error) {
-            //         // Xử lý lỗi nếu có
-            //         console.log("lõi", xhr)
-            //         Swal.fire({
-            //             icon: 'error',
-            //             title: 'Vui lòng điền đầy đủ thông tin.',
-            //             text: 'Bạn chỉ có thể bỏ trống trường ghi chú.',
-            //             showConfirmButton: true
-            //         });
-            //     }
-            // });
+            if(paymentMethod === "COD"){
+                $.ajax({
+                    type: "POST",
+                    url: "/handmade_war/payment",
+                    data: {
+                        namePay: namePay,
+                        phonePay: phonePay,
+                        formattedAddress: formattedAddress,
+                        shippingFee: shippingFee,
+                        totalAmount: totalAmount
+                    },
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.success) {
+                            Swal.fire({
+                                title: "Cảm ơn bạn, đơn hàng đã được tạo!",
+                                width: 600,
+                                padding: "3em",
+                                color: "rgba(5,131,39,0.98)",
+                                background: "#fff url(/images/trees.png)",
+                                backdrop: `
+                                                       rgba(0,0,123,0.4)
+                                                      url("/images/nyan-cat.gif")
+                                                          left top
+                                                       no-repeat
+                        `,
+                                showConfirmButton: false,
+                                timer: 4000
+                            }).then(function () {
+                                window.location.href = "../../views/MainPage/view_mainpage/mainpage.jsp"; // Chuyển hướng về trang chủ
+                            });
+                        } else {
+                            console.log("Error:", response.message)
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Thời gian đã qua!',
+                                text: response.message,
+                                showConfirmButton: true
+                            });
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        // Xử lý lỗi nếu có
+                        console.log("lõi", xhr)
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Vui lòng điền đầy đủ thông tin.',
+                            text: 'Bạn chỉ có thể bỏ trống trường ghi chú.',
+                            showConfirmButton: true
+                        });
+                    }
+                });
+            }
+            else if (paymentMethod === "MOMO"){
+                console.log("Total Amount:" , totalAmount)
+                const params = new URLSearchParams();
+                params.append('address', formattedAddress);
+                params.append('phoneNumber', phonePay);
+                params.append('username', namePay);
+                params.append('totalAmount', totalAmount  || 50000);
+
+                params.append('ship', shippingFee);
+
+                fetch("http://localhost:8080/handmade_war/payment-momo", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: params
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        window.location.href = data.payUrl;                    })
+                    .catch(console.error);
+            }
+            else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Vui lòng chọn phương thức thanh toán.',
+                    showConfirmButton: true
+                });
+            }
 
 
         })
@@ -752,72 +628,72 @@
     }
 
 
-    //       function sendDataToServlet() {
-    //           var namePay = document.getElementById("namePay").value;
-    //           var phonePay = document.getElementById("phonePay").value;
-    //           var formattedAddress = document.getElementById("formattedAddress").value;
-    //           var shippingFee = document.getElementById("shippingFeeInput").value;
-    //           var totalAmount = document.getElementById("totalAmountInput").value;
-    //
-    //           console.log("click button");
-    //
-    //           $.ajax({
-    //               type: "POST",
-    //               url: "HandMadeStore/payment", // Đường dẫn đến servlet của bạn
-    //               data: {
-    //                   namePay: namePay,
-    //                   phonePay: phonePay,
-    //                   formattedAddress: formattedAddress,
-    //                   shippingFee: shippingFee,
-    //                   totalAmount: totalAmount
-    //               },
-    //               dataType: "json",
-    //               success: function(response) {
-    //                   if(response.success){
-    //                       alert("Thanh cong");
-    // //                   Swal.fire({
-    //                       //                       title: "Cảm ơn bạn, đơn hàng đã được tạo!",
-    //                       //                       width: 600,
-    //                       //                       padding: "3em",
-    //                       //                       color: "rgba(123,255,2,0.45)",
-    //                       //                       background: "#fff url(/images/trees.png)",
-    //                       //                       backdrop: `
-    //                       //                                rgba(0,0,123,0.4)
-    //                       //                               url("/images/nyan-cat.gif")
-    //                       //                                   left top
-    //                       //                                no-repeat
-    //                       // `                     ,
-    //                       //                       showConfirmButton: false,
-    //                       //                       timer: 2000
-    //                       //                   }).then(function () {
-    //                       //                       window.location.href = "/views/MainPage/view_mainpage/mainpage.jsp"; // Chuyển hướng về trang chủ
-    //                       //                   });
-    //                                         }
-    //                   else {
-    //                       console.log("Error:", response.message)
-    //                       Swal.fire({
-    //                           icon: 'error',
-    //                           title: 'Vui lòng kiểm tra các trường dữ liệu!',
-    //                           text: response.message,
-    //                           showConfirmButton: true
-    //                       });
-    //                   }
-    //               },
-    //               error: function(xhr, status, error) {
-    //                   // Xử lý lỗi nếu có
-    //                   Swal.fire({
-    //                       icon: 'error',
-    //                       title: 'Đặt hàng không thành công!',
-    //                       text: 'Vui lòng thử lại sau.',
-    //                       showConfirmButton: true
-    //                   });
-    //               }
-    //           });
-    //       }
+          function sendDataToServlet() {
+              var namePay = document.getElementById("namePay").value;
+              var phonePay = document.getElementById("phonePay").value;
+              var formattedAddress = document.getElementById("formattedAddress").value;
+              var shippingFee = document.getElementById("shippingFeeInput").value;
+              var totalAmount = document.getElementById("totalAmountInput").value;
+
+              console.log("click button");
+
+              $.ajax({
+                  type: "POST",
+                  url: "handmade_war/payment",
+                  data: {
+                      namePay: namePay,
+                      phonePay: phonePay,
+                      formattedAddress: formattedAddress,
+                      shippingFee: shippingFee,
+                      totalAmount: totalAmount
+                  },
+                  dataType: "json",
+                  success: function(response) {
+                      if(response.success){
+                          alert("Thanh cong");
+                      Swal.fire({
+                                                title: "Cảm ơn bạn, đơn hàng đã được tạo!",
+                                                width: 600,
+                                                padding: "3em",
+                                                color: "rgba(123,255,2,0.45)",
+                                                background: "#fff url(/images/trees.png)",
+                                                backdrop: `
+                                                         rgba(0,0,123,0.4)
+                                                        url("/images/nyan-cat.gif")
+                                                            left top
+                                                         no-repeat
+                          `                     ,
+                                                showConfirmButton: false,
+                                                timer: 2000
+                                            }).then(function () {
+                                                window.location.href = "/views/MainPage/view_mainpage/mainpage.jsp"; // Chuyển hướng về trang chủ
+                                            });
+                                            }
+                      else {
+                          console.log("Error:", response.message)
+                          Swal.fire({
+                              icon: 'error',
+                              title: 'Vui lòng kiểm tra các trường dữ liệu!',
+                              text: response.message,
+                              showConfirmButton: true
+                          });
+                      }
+                  },
+                  error: function(xhr, status, error) {
+                      // Xử lý lỗi nếu có
+                      Swal.fire({
+                          icon: 'error',
+                          title: 'Đặt hàng không thành công!',
+                          text: 'Vui lòng thử lại sau.',
+                          showConfirmButton: true
+                      });
+                  }
+              });
+          }
 
 
 </script>
-
+<script src="./js/provinces-api.js"></script>
 <script src="../PaymentPage/js/paymentpage.js"></script>
 <!--Bộ select tỉnh thành-->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
