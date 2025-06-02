@@ -36,3 +36,5 @@ build/
 
 ### Mac OS ###
 .DS_Store
+# Ignore Constants file containing sensitive information
+src/main/java/Constants/Constants.java
