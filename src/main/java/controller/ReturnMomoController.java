@@ -1,5 +1,7 @@
 package controller;
 
+import model.bean.Cart;
+import model.bean.Order;
 import model.bean.User;
 import model.dao.OrderDAO;
 
@@ -74,18 +76,46 @@ public class ReturnMomoController extends HttpServlet {
 
             HttpSession session = request.getSession();
             User user = (User) session.getAttribute("auth");
-
+            Cart cart = (Cart) session.getAttribute("cart");
             if ("0".equals(resultCode)) {
                 // Thanh toán thành công
                 System.out.println("Payment SUCCESS");
                 String address = (String) session.getAttribute("address");
-                int phone = (int) session.getAttribute("phone");
+                String phone = (String) session.getAttribute("phone");
                 String  receiver= (String) session.getAttribute("receiver");
-                Integer discount = (int) session.getAttribute("discount");
-                Integer quantity = (Integer) session.getAttribute("quantity");
-                Integer totalPay = (Integer) session.getAttribute("totalPay");
-                Integer ship = (Integer) session.getAttribute("ship");
+//                Integer totalPay = (Integer) session.getAttribute("totalPay");
+                Integer ship = null;
+                Object shipObj = session.getAttribute("ship");
+                if (shipObj instanceof Integer) {
+                    ship = (Integer) shipObj;
+                } else if (shipObj instanceof String) {
+                    try {
+                        ship = Integer.parseInt((String) shipObj);
+                    } catch (NumberFormatException e) {
+                        System.out.println("Error parsing ship from session: " + shipObj);
+                        ship = 0; // Default shipping fee
+                    }
+                } else {
+                    ship = 0; // Default shipping fee
+                }
 
+                OrderDAO orderZ = new OrderDAO();
+
+                Order order = new Order();
+                order.setConsigneeName(receiver);
+                order.setConsigneePhoneNumber(phone);
+                order.setAddress(address);
+                order.setShippingFee(ship);
+                order.setTotalPrice(Double.parseDouble(amount));
+                Integer accessCount = (Integer) session.getAttribute("accessCount");
+                if (accessCount != null) {
+                    accessCount = 0;
+                    session.setAttribute("accessCount", accessCount);
+                }
+//           Xoasa sesion gio hàng
+                orderZ.addOrder(order, cart, user);
+                cart.clear();
+                request.getSession().setAttribute("cart", cart);
                 // Set attributes cho JSP
                 request.setAttribute("status", "success");
                 request.setAttribute("message", "Thanh toán thành công!");
@@ -95,7 +125,7 @@ public class ReturnMomoController extends HttpServlet {
 //                OrderDAO.addOrder()
 
                 // Redirect đến trang success
-                response.sendRedirect(request.getContextPath() + "/order_success.jsp");
+                response.sendRedirect(request.getContextPath() + "/views/ReturnMomo/order_success.jsp");
                 return;
 
             } else {
@@ -109,7 +139,7 @@ public class ReturnMomoController extends HttpServlet {
             }
 
             // Forward đến trang hiển thị kết quả thất bại
-            request.getRequestDispatcher("/user/paymentResult.jsp").forward(request, response);
+            request.getRequestDispatcher("/views/ReturnMomo/paymentResult.jsp").forward(request, response);
 
         } catch (Exception e) {
             System.out.println("Error processing MoMo return: " + e.getMessage());

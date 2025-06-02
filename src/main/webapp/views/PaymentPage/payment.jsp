@@ -407,51 +407,51 @@
         const countDownEl = document.getElementById('count-down');
         const countdownTime = 1 * 60 * 1000; // 2 phút = 120000 ms
         const endTime = startMillis + countdownTime;
-        <%--function updateCountdown() {--%>
-        <%--    const now = Date.now();--%>
-        <%--    if(endTime > now){--%>
-        <%--        const timeLeft = endTime - now;--%>
+        function updateCountdown() {
+            const now = Date.now();
+            if(endTime > now){
+                const timeLeft = endTime - now;
 
-        <%--        if (timeLeft > 0) {--%>
-        <%--            const minutes = Math.floor(timeLeft / 1000 / 60);--%>
-        <%--            const seconds = Math.floor((timeLeft / 1000) % 60);--%>
-        <%--            console.log("m " + minutes + " s " + seconds)--%>
-        <%--            $('#count-down').html(`${minutes} phút ${seconds} giây`);--%>
-        <%--        } else {--%>
-        <%--            console.log("Countdown topped");--%>
-        <%--            countDownEl.style.backgroundColor = '#8b8b8b'--%>
-        <%--            Swal.fire({--%>
-        <%--                title: "Đã hết thời gian!",--%>
-        <%--                timer: 5000,--%>
-        <%--                timerProgressBar: true,--%>
-        <%--                allowOutsideClick: false,--%>
-        <%--                allowEscapeKey: false,--%>
-        <%--                didOpen: () => {--%>
-        <%--                    Swal.showLoading();--%>
-        <%--                }--%>
-        <%--            }).then(() => {--%>
-        <%--                window.location.href = "/handmade_war/payment?backToCart=true"--%>
-        <%--            })--%>
-        <%--            clearInterval(countdownInterval);--%>
-        <%--        }--%>
-        <%--    }else {--%>
-        <%--        console.log("Countdown topped");--%>
-        <%--        countDownEl.style.backgroundColor = '#8b8b8b'--%>
-        <%--        Swal.fire({--%>
-        <%--            title: "Đã hết thời gian!",--%>
-        <%--            timer: 5000,--%>
-        <%--            timerProgressBar: true,--%>
-        <%--            allowOutsideClick: false,--%>
-        <%--            allowEscapeKey: false,--%>
-        <%--            didOpen: () => {--%>
-        <%--                Swal.showLoading();--%>
-        <%--            }--%>
-        <%--        }).then(() => {--%>
-        <%--            window.location.href = "/handmade_war/payment?backToCart=true"--%>
-        <%--        })--%>
-        <%--        clearInterval(countdownInterval);--%>
-        <%--    }--%>
-        <%--}--%>
+                if (timeLeft > 0) {
+                    const minutes = Math.floor(timeLeft / 1000 / 60);
+                    const seconds = Math.floor((timeLeft / 1000) % 60);
+                    console.log("m " + minutes + " s " + seconds)
+                    $('#count-down').html(`${minutes} phút ${seconds} giây`);
+                } else {
+                    console.log("Countdown topped");
+                    countDownEl.style.backgroundColor = '#8b8b8b'
+                    Swal.fire({
+                        title: "Đã hết thời gian!",
+                        timer: 5000,
+                        timerProgressBar: true,
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    }).then(() => {
+                        window.location.href = "/handmade_war/payment?backToCart=true"
+                    })
+                    clearInterval(countdownInterval);
+                }
+            }else {
+                console.log("Countdown topped");
+                countDownEl.style.backgroundColor = '#8b8b8b'
+                Swal.fire({
+                    title: "Đã hết thời gian!",
+                    timer: 5000,
+                    timerProgressBar: true,
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                }).then(() => {
+                    window.location.href = "/handmade_war/payment?backToCart=true"
+                })
+                clearInterval(countdownInterval);
+            }
+        }
 
         const countdownInterval = setInterval(updateCountdown, 1000);
         updateCountdown(); // Cập nhật lần đầu tiên ngay khi trang được tải
@@ -486,40 +486,6 @@
         console.log(formatted)
         document.getElementById('formattedAddress').value = formatted;
     }
-    <%--function calculateFeeShip() {--%>
-    <%--    $.ajax({--%>
-    <%--        type: "GET",--%>
-    <%--        url: "/handmade_war/shippingFee",--%>
-    <%--        data: {--%>
-    <%--            tempPrice: <%=totalMoney%>,--%>
-    <%--            wardCode: wardCode,--%>
-    <%--            districtId: districtId,--%>
-    <%--            totalWeight: 1000--%>
-    <%--        },--%>
-    <%--        dataType: "json",--%>
-    <%--        success: function (response) {--%>
-    <%--            var shippingFee = response.data.total + 25000;--%>
-    <%--            var totalMoney = <%=totalMoney%>;--%>
-    <%--            var totalAmount = totalMoney + shippingFee;--%>
-    <%--            // Lưu giá trị vào 2 trường input :--%>
-    <%--            $('#shippingFeeInput').val(shippingFee);--%>
-    <%--            $('#totalAmountInput').val(totalAmount);--%>
-
-
-    <%--            // Định dạng thành tiền Việt Nam đồng--%>
-    <%--            var formattedShippingFee = formatCurrency(shippingFee);--%>
-    <%--            var formattedTotalAmount = formatCurrency(totalAmount);--%>
-
-
-    <%--            //hien thi shipping fee--%>
-    <%--            $('#shippingFeeResult').text(formattedShippingFee);--%>
-    <%--            $('#totalAmount').text(formattedTotalAmount);--%>
-    <%--        }, error: function (xhr, status, error) {--%>
-    <%--            console.log("Failed fetch ship: ", error);--%>
-    <%--            alert("Không tính được phí ship.");--%>
-    <%--        }--%>
-    <%--    })--%>
-    <%--}--%>
     $(document).ready(function () {
         $("#placeOrderBtn").on("click", function () {
             var namePay = document.getElementById("name").value;
@@ -535,6 +501,13 @@
             console.log(totalAmount)
 
             if(paymentMethod === "COD"){
+                console.log({
+                    namePay: namePay,
+                    phonePay: phonePay,
+                    formattedAddress: formattedAddress,
+                    shippingFee: shippingFee,
+                    totalAmount: totalAmount
+                })
                 $.ajax({
                     type: "POST",
                     url: "/handmade_war/payment",
@@ -580,8 +553,8 @@
                         console.log("lõi", xhr)
                         Swal.fire({
                             icon: 'error',
-                            title: 'Vui lòng điền đầy đủ thông tin.',
-                            text: 'Bạn chỉ có thể bỏ trống trường ghi chú.',
+                            title: 'Đã có lỗi xảy ra.',
+                            text: error,
                             showConfirmButton: true
                         });
                     }

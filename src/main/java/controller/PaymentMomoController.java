@@ -26,8 +26,8 @@ public class PaymentMomoController extends HttpServlet {
     private static final String partnerCode = "MOMO";
     private static final String accessKey = "F8BBA842ECF85";
     private static final String secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
-    private static final String redirectUrl = "http://localhost:8080/FinalLapTrinhWeb_war/user/return";
-    private static final String ipnUrl = "http://localhost:8080/FinalLapTrinhWeb_war/user/momo-ipn";
+    private static final String redirectUrl = "http://localhost:8080/handmade_war/return";
+    private static final String ipnUrl = "http://localhost:8080/handmade_war/momo-ipn";
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

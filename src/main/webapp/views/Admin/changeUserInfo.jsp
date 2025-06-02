@@ -321,7 +321,7 @@
         const newName = document.getElementById("input_name").value;
         $.ajax({
             method: "POST",
-            url: "/HandMadeStore/changeUserInfo",
+            url: "/handmade_war/changeUserInfo",
             data: {
                 action: "changeName",
                 newName: newName
@@ -340,7 +340,7 @@
         const newPhone = document.getElementById("input_phone").value;
         $.ajax({
             method: "POST",
-            url: "/HandMadeStore/changeUserInfo",
+            url: "/handmade_war/changeUserInfo",
             data: {
                 action: "changePhone",
                 newPhone: newPhone
@@ -420,7 +420,7 @@
         const orderId = clickedElement.id;
         $.ajax({
             method: "POST",
-            url: "/HandMadeStore/order-ajax-handle",
+            url: "/handmade_war/order-ajax-handle",
             data: {
                 action: "showOrder",
                 orderId: orderId
@@ -519,7 +519,7 @@
         const currentOffset = document.getElementById("showCouter").value;
         $.ajax({
             method: "POST",
-            url: "/HandMadeStore/order-ajax-handle",
+            url: "/handmade_war/order-ajax-handle",
             data: {
                 action: "moreOrder",
                 userId: userId,
@@ -564,7 +564,7 @@
         // thay đổi allOrderNumber và showCouter
         $.ajax({
             method: "POST",
-            url: "/HandMadeStore/order-ajax-handle",
+            url: "/handmade_war/order-ajax-handle",
             data: {
                 action: "getNumberFilter",
                 userId: userId,
@@ -771,7 +771,7 @@
         }
         $.ajax({
             method: "POST",
-            url: "/HandMadeStore/order-ajax-handle",
+            url: "/handmade_war/order-ajax-handle",
             data: {
                 action: "customerCancelOrder",
                 orderId: orderId,
