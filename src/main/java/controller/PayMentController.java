@@ -72,21 +72,37 @@ public class PayMentController extends HttpServlet {
             System.out.println("Item: " + item.toString());
             System.out.println("Product " + p.getName() + " isSale" + p.getIsSale() + "price : " + price);
 
-            if (p.getIsSale() != 1) {
+            if (p.getIsSale() != 1 && p.getIsSale() != 3) {
                 isValidCart = false;
                 errorMessage.add("Sản phẩm \"" + p.getName() + "\" hiện đã ngừng kinh doanh.");
             }
 
-            if (item.getQuantity() > p.getStock()) {
-                isValidCart = false;
-                errorMessage.add("Sản phẩm \"" + p.getName() + "\" hiện nay chỉ còn " + p.getStock() + " sản phẩm.");
+            // Check quantity for normal and pre-order products
+            if (p.getIsSale() == 1) {
+                if (item.getQuantity() > p.getStock()) {
+                    isValidCart = false;
+                    errorMessage.add("Sản phẩm \"" + p.getName() + "\" hiện nay chỉ còn " + p.getStock() + " sản phẩm.");
+                }
+            } else if (p.getIsSale() == 3) {
+                if (p.getStock() > 0) {
+                    if (item.getQuantity() > p.getStock()) {
+                        isValidCart = false;
+                        errorMessage.add("Sản phẩm \"" + p.getName() + "\" hiện nay chỉ còn " + p.getStock() + " sản phẩm.");
+                    }
+                } else {
+                    model.bean.PreOrder preOrder = model.service.PreOrderService.getInstance().getPreOrderById(productId);
+                    int preOrderAmount = preOrder != null ? preOrder.getAmount() : 0;
+                    if (item.getQuantity() > preOrderAmount) {
+                        isValidCart = false;
+                        errorMessage.add("Sản phẩm \"" + p.getName() + "\" chỉ còn " + preOrderAmount + " sản phẩm có thể đặt trước.");
+                    }
+                }
             }
 
             if (item.getPrice() != price) {
                 isValidCart = false;
                 errorMessage.add("Giá của sản phẩm \"" + p.getName() + "\" đã được cập nhật thành " + numberFormat.format(price));
             }
-
         }
 
         if (user == null) {
@@ -197,7 +213,18 @@ public class PayMentController extends HttpServlet {
             int productId = entry.getKey();
             Item item = entry.getValue();
             int quantity = item.getQuantity();
-            ProductService.getInstance().reduceStock(productId, quantity);
+            Product p = ProductService.getInstance().getProductById(productId);
+            if (p.getIsSale() == 1) {
+                ProductService.getInstance().reduceStock(productId, quantity);
+            } else if (p.getIsSale() == 3) {
+                if (p.getStock() > 0) {
+                    ProductService.getInstance().reduceStock(productId, quantity);
+                } else {
+                    model.service.PreOrderService.getInstance().reducePreOrderAmount(productId, quantity);
+                    // After reducing, check if pre-order amount is now zero and process accordingly
+                    model.service.PreOrderService.getInstance().processExpiredPreOrderIfNeeded(productId);
+                }
+            }
         }
     }
 

@@ -34,6 +34,17 @@
     User sessionUser = (User) request.getSession().getAttribute("auth");
 %>
 
+<%
+    int maxQuantity = 1;
+    if (product.getIsSale() == 3 && product.getStock() == 0) {
+        Object preOrderAmountObj = request.getAttribute("preOrderAmount");
+        maxQuantity = preOrderAmountObj != null ? Integer.parseInt(preOrderAmountObj.toString()) : 1;
+    } else {
+        maxQuantity = product.getStock();
+    }
+%>
+<input type="hidden" id="max-quantity" value="<%=maxQuantity%>">
+
 <html>
 <head>
     <title>ProductDetails</title>
@@ -157,33 +168,51 @@
                 </div>
             </div>
             <%}%>
-            <% if (product.getStock() > 0) {
-            %>
-            <div class="state-pd my-2">
-                <label class="me-2 label-title">Còn <strong style="color: #ff1a1a"><%=product.getStock()%>
-                </strong> sản phẩm</label>
-                <label class="me-2 "> <strong>| Trạng thái :</strong>
-                    <%
-                        String status = "Ngừng kinh doanh";
-                        switch (product.getIsSale()) {
-                            case 1:
-                                status = "Có sẵn";
-                                break;
-                            case 2:
-                                status = "Tạm hết hàng";
-                                break;
-                            case 3:
-                                status = "Được đặt trước";
-                                break;
+            <% Object preOrderAmountObj = request.getAttribute("preOrderAmount"); %>
+            <% if (product.getStock() > 0) { %>
+                <div class="state-pd my-2">
+                    <label class="me-2 label-title">
+                        Còn <strong style="color: #ff1a1a"><%=product.getStock()%></strong> sản phẩm
+                    </label>
+                    <label class="me-2 "> <strong>| Trạng thái :</strong>
+                        <%
+                            String status = "Ngừng kinh doanh";
+                            switch (product.getIsSale()) {
+                                case 1:
+                                    status = "Có sẵn";
+                                    break;
+                                case 2:
+                                    status = "Tạm hết hàng";
+                                    break;
+                                case 3:
+                                    status = "Được đặt trước";
+                                    break;
+                            }
+                        %>
+                        <%=status%>
+                    </label>
+                </div>
+            <% } else if (product.getIsSale() == 3) { %>
+                <% if (preOrderAmountObj != null) { %>
+                    <div class="state-pd my-2">
+                        <label class="me-2 label-title">
+                            Được đặt trước <strong style="color: #ff1a1a"><%=preOrderAmountObj%></strong> sản phẩm
+                        </label>
+                        <label class="me-2 "> <strong>| Trạng thái :</strong> Được đặt trước</label>
+                    </div>
+                <% } else { %>
+                    <script>
+                        window.onload = function() {
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'Chưa đăng ký đặt hàng trước',
+                                text: 'Sản phẩm này hiện chưa mở đặt trước.',
+                                confirmButtonText: 'Đóng'
+                            });
                         }
-                    %>
-                    <%=status%>
-                </label>
-            </div>
-
-            <%
-                }
-            %>
+                    </script>
+                <% } %>
+            <% } %>
 
 
             <%
@@ -206,9 +235,8 @@
             </h2>
             <%}%>
             <div class="row mt-3">
-
                 <%
-                    if (product.getIsSale() == 1) {
+                    if (product.getIsSale() == 1 || product.getIsSale() == 3) {
                 %>
                 <div class="quantity-pd mb-4 col-4">
                     <label class="me-2 label-title" style="font-size: 14px">Số lượng: </label>
@@ -221,12 +249,9 @@
                 <button class="buy-btn col-4" style="font-size: 16px" <%=request.getAttribute("disable")%>>
                     Thêm vào giỏ hàng
                 </button>
-
-
                 <% } else {%>
                 <a href="#relate" style="font-style: italic; font-size: 14px"> Xem các sản phẩm khác </a>
                 <%}%>
-
             </div>
 
             <a class="order-btn" style="font-size: 16px" <%=request.getAttribute("disable")%>
@@ -523,6 +548,20 @@
         let idProductList = [];
         addToCartLink.addEventListener("click", function (event) {
             let actionCart = "post";
+            const maxQuantity = parseInt(document.getElementById("max-quantity").value);
+            const currentQuantity = parseInt(quantityInput.value);
+
+            if (currentQuantity > maxQuantity) {
+                Swal.fire({
+                    position: "center",
+                    icon: "error",
+                    title: "Số lượng vượt quá giới hạn cho phép!",
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+                return;
+            }
+
             $.ajax({
                 url: "/HandMadeStore/add-cart",
                 method: "POST",

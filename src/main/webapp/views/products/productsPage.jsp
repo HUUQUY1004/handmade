@@ -4,6 +4,8 @@
 <%@ page import="java.util.List" %>
 <%@ page import="model.dao.SortOption" %>
 <%@ page import="model.dao.ProductDAO" %>
+<%@ page import="model.bean.PreOrder" %>
+<%@ page import="model.service.PreOrderService" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%String textSearch = (String) request.getAttribute("textSearch");%>
 <%Integer searchResultNumber = (Integer) request.getAttribute("searchResultNumber");%>
@@ -131,61 +133,80 @@
     </div>
     <div class="product_find" style="width: 80%">
         <div id="products">
-            <ul id="allProduct" class="products mt-2 d-flex flex-wrap">
+            <div id="allProduct" class="products mt-2 d-flex flex-wrap">
                 <%for (Product pfp : productList) {%>
+                <%if (pfp.getIsSale() == 1 || pfp.getIsSale() == 3) {%>
                 <%String pathImagefp = ImageService.getInstance().pathImageOnly(pfp.getId());%>
                 <li class="product_li">
-                    <div class="item_product  me-4">
-                        <a class="image" href="<%=request.getContextPath()%>/product-detail?id=<%=pfp.getId()%>"> <img
-                                src="<%=request.getContextPath()%>/<%=pathImagefp%>"> </a>
-                        <a href="<%=request.getContextPath()%>/product-detail?id=<%=pfp.getId()%>"><p
-                                class="pt-2 px-2 fw-bold fst-italic"><%=pfp.getName() %>
-                        </p></a>
+                    <div class="item_product me-4">
+                        <a class="image" href="<%=request.getContextPath()%>/product-detail?id=<%=pfp.getId()%>">
+                            <img src="<%=request.getContextPath()%>/<%=pathImagefp%>">
+                        </a>
+                        <a href="<%=request.getContextPath()%>/product-detail?id=<%=pfp.getId()%>">
+                            <p class="pt-2 px-2 fw-bold fst-italic"><%=pfp.getName()%></p>
+                        </a>
                         <%!double giaBanSauCung;%>
                         <% giaBanSauCung = ProductService.getInstance().productPriceIncludeDiscount(pfp);%>
 
                         <%if (pfp.getCategoryId() >= 0 && giaBanSauCung != pfp.getSellingPrice()) {%>
                         <%! int discountProduct;%>
                         <% discountProduct = ProductService.getInstance().discountProduct(pfp.getId());%>
-                        <div style="position: absolute;top: 0;z-index: 1000;background: red;color: white;padding: 5px;"><%=discountProduct%>
-                            %
+                        <div style="position: absolute;top: 0;z-index: 1000;background: red;color: white;padding: 5px;">
+                            <%=discountProduct%>%
                         </div>
                         <div>
-                            <del><p style="margin-bottom: 0"><%=numberFormat.format(pfp.getSellingPrice())%>
-                            </p></del>
-                            <p class="fw-bold text-danger"><%=numberFormat.format(ProductService.getInstance().productPriceIncludeDiscount(pfp))%>
-                            </p>
+                            <del><p style="margin-bottom: 0"><%=numberFormat.format(pfp.getSellingPrice())%></p></del>
+                            <p class="fw-bold text-danger"><%=numberFormat.format(ProductService.getInstance().productPriceIncludeDiscount(pfp))%></p>
                         </div>
                         <%} else {%>
                         <div>
-                            <p class="fw-bold my-0 text-danger"
-                               style="margin-bottom: 0"><%=numberFormat.format(ProductService.getInstance().productPriceIncludeDiscount(pfp))%>
+                            <p class="fw-bold my-0 text-danger" style="margin-bottom: 0">
+                                <%=numberFormat.format(ProductService.getInstance().productPriceIncludeDiscount(pfp))%>
                             </p>
                         </div>
                         <%}%>
                         <div class="add-to-cart">
-                            <button onclick="addcart(this,<%=pfp.getId()%>)"><span class="fw-bold">Thêm vào giỏ <i
-                                    class="fa-solid fa-cart-shopping"></i></span></button>
+                            <button onclick="addcart(this,<%=pfp.getId()%>)">
+                                <span class="fw-bold">Thêm vào giỏ <i class="fa-solid fa-cart-shopping"></i></span>
+                            </button>
                         </div>
                         <div style="position: absolute; bottom: 0; width: 100%">
                             <%
-                                double averageRateStars = ProductService.getInstance().roundNumber(ProductService.getInstance().getAverageRateStars(pfp.getId()));%>
+                                double averageRateStars = ProductService.getInstance().roundNumber(ProductService.getInstance().getAverageRateStars(pfp.getId()));
+                                String displayText;
+                                String displayValue;
+                                if (pfp.getStock() > 0) {
+                                    displayText = "Đã Bán";
+                                    displayValue = String.valueOf(pfp.getStock());
+                                } else if (pfp.getIsSale() == 3) {
+                                    // Check if pre-order exists for this product
+                                    if (PreOrderService.getInstance().getPreOrderById(pfp.getId()) != null) {
+                                        displayText = "Đặt trước";
+                                        displayValue = String.valueOf(PreOrderService.getInstance().getPreOrderById(pfp.getId()).getAmount());
+                                    } else {
+                                        displayText = "Chưa mở đặt trước";
+                                        displayValue = "";
+                                    }
+                                } else {
+                                    displayText = "Đã Bán";
+                                    displayValue = String.valueOf(pfp.getStock());
+                                }
+                            %>
                             <div style="float: left;width: 50%; padding-bottom: 3%;font-size: 15px">
-                                <span>Đã Bán:</span>
-                                <span><%=pfp.getStock()%></span>
+                                <span><%=displayText%>:</span>
+                                <span><%=displayValue%></span>
                             </div>
                             <%if (averageRateStars > 0) {%>
                             <div style="float: right; width: 50%; padding-bottom: 3%;font-size: 15px; text-align: end; padding-right: 3px">
-                                <div><%=averageRateStars%><i class="fa-solid fa-star"
-                                                             style="color: #FFD43B;font-size: 13px"></i></div>
+                                <div><%=averageRateStars%><i class="fa-solid fa-star" style="color: #FFD43B;font-size: 13px"></i></div>
                             </div>
                             <%}%>
-
                         </div>
                     </div>
                 </li>
                 <%}%>
-            </ul>
+                <%}%>
+            </div>
         </div>
         <%--    Số Trang--%>
         <div class="d-flex justify-content-center" id="morebox">

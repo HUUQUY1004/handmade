@@ -21,7 +21,7 @@ import java.util.TimerTask;
 @WebServlet(name = "PreOrderAdminController", urlPatterns = {"/admin/preorder/*"})
 public class PreOrderAdminController extends HttpServlet {
     private Timer timer;
-    private static final long CHECK_INTERVAL = 24 * 60 * 60 * 1000; // Check every 24 hours
+    private static final long CHECK_INTERVAL = 60 * 1000; // Check every 1 mins
 
     @Override
     public void init() throws ServletException {
