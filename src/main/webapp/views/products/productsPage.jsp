@@ -175,7 +175,10 @@
                                 double averageRateStars = ProductService.getInstance().roundNumber(ProductService.getInstance().getAverageRateStars(pfp.getId()));
                                 String displayText;
                                 String displayValue;
-                                if (pfp.getIsSale() == 3) {
+                                if (pfp.getStock() > 0) {
+                                    displayText = "Đã Bán";
+                                    displayValue = String.valueOf(pfp.getStock());
+                                } else if (pfp.getIsSale() == 3) {
                                     // Check if pre-order exists for this product
                                     if (PreOrderService.getInstance().getPreOrderById(pfp.getId()) != null) {
                                         displayText = "Đặt trước";
