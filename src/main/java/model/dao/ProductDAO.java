@@ -16,7 +16,7 @@ public class ProductDAO {
                                 "FROM product p " +
                                 "LEFT JOIN inventory i ON p.id = i.productId " +
                                 "LEFT JOIN discount d ON p.discountId = d.id " +
-                                "WHERE p.isSale = 1 " +
+                                "WHERE p.isSale IN (1, 3) " +
                                 "ORDER BY i.createDate DESC, d.percentageOff DESC")
                         .mapToBean(Product.class)
                         .stream()
@@ -31,6 +31,7 @@ public class ProductDAO {
                                 "FROM product p " +
                                 "LEFT JOIN inventory i ON p.id = i.productId " +
                                 "LEFT JOIN discount d ON p.discountId = d.id " +
+                                "WHERE p.isSale IN (1, 3) " +
                                 "ORDER BY i.createDate DESC, d.percentageOff DESC")
                         .mapToBean(Product.class)
                         .stream()
@@ -477,7 +478,7 @@ public class ProductDAO {
                         "LEFT JOIN rate r ON p.id = r.productId " +
                         "WHERE "
                         + (categoryQuery.isEmpty() ? "" : categoryQuery + " AND ") +
-                        " p.isSale = 1 "
+                        " p.isSale IN (1, 3) "
                         + (rangePriceQuery.isEmpty() ? "" : " AND " + rangePriceQuery) +
                         "GROUP BY p.id, p.name, p.description, p.sellingPrice, p.stock, p.categoryId, p.discountId, p.isSale " +
                         "ORDER BY COUNT(r.productId) DESC " +
@@ -489,7 +490,7 @@ public class ProductDAO {
                         "LEFT JOIN rate r ON p.id = r.productId " +
                         "WHERE "
                         + (categoryQuery.isEmpty() ? "" : categoryQuery + " AND ") +
-                        " p.isSale = 1 "
+                        " p.isSale IN (1, 3) "
                         + (rangePriceQuery.isEmpty() ? "" : " AND " + rangePriceQuery) +
                         "GROUP BY p.id, p.name, p.description, p.sellingPrice, p.stock, p.categoryId, p.discountId, p.isSale " +
                         "ORDER BY AVG(r.starRatings) DESC " +
@@ -500,7 +501,7 @@ public class ProductDAO {
                         "FROM product p " +
                         "WHERE "
                         + (categoryQuery.isEmpty() ? "" : categoryQuery + " AND ") +
-                        " p.isSale = 1 "
+                        " p.isSale IN (1, 3) "
                         + (rangePriceQuery.isEmpty() ? "" : " AND " + rangePriceQuery) +
                         "ORDER BY p.sellingPrice ASC " +
                         "LIMIT ? OFFSET ?";
@@ -510,7 +511,7 @@ public class ProductDAO {
                         "FROM product p " +
                         "WHERE "
                         + (categoryQuery.isEmpty() ? "" : categoryQuery + " AND ") +
-                        " p.isSale = 1 "
+                        " p.isSale IN (1, 3) "
                         + (rangePriceQuery.isEmpty() ? "" : " AND " + rangePriceQuery) +
                         "ORDER BY p.sellingPrice DESC " +
                         "LIMIT ? OFFSET ?";
@@ -521,7 +522,7 @@ public class ProductDAO {
                         "LEFT JOIN discount d ON p.discountId = d.id " +
                         "WHERE "
                         + (categoryQuery.isEmpty() ? "" : categoryQuery + " AND ") +
-                        " p.isSale = 1 " +
+                        " p.isSale IN (1, 3) " +
                         "  AND d.startDate <= NOW() AND d.endDate >= NOW() "
                         + (rangePriceQuery.isEmpty() ? "" : " AND " + rangePriceQuery) +
                         "ORDER BY d.percentageOff DESC " +
@@ -530,7 +531,7 @@ public class ProductDAO {
             case SortOption.SORT_STOCK:
                 sql = "SELECT * FROM product p WHERE "
                         + (categoryQuery.isEmpty() ? "" : categoryQuery + " AND ") +
-                        " isSale = 1 "
+                        " isSale IN (1, 3) "
                         + (rangePriceQuery.isEmpty() ? "" : " AND " + rangePriceQuery) +
                         "ORDER BY p.stock DESC " +
                         " LIMIT ? OFFSET ?";
@@ -540,7 +541,7 @@ public class ProductDAO {
                         "LEFT JOIN inventory i ON p.id = i.productId " +
                         " WHERE "
                         + (categoryQuery.isEmpty() ? "" : "p." + categoryQuery + " AND ") +
-                        " p.isSale = 1 "
+                        " p.isSale IN (1, 3) "
                         + (rangePriceQuery.isEmpty() ? "" : " AND " + rangePriceQuery) +
                         " ORDER BY i.createDate DESC " +
                         " LIMIT ? OFFSET ?";
@@ -577,7 +578,7 @@ public class ProductDAO {
                         "LEFT JOIN rate r ON p.id = r.productId " +
                         "WHERE "
                         + (kwQuery.isEmpty() ? "" : kwQuery + " AND ") +
-                        " p.isSale = 1 "
+                        " p.isSale IN (1, 3) "
                         + (rangePriceQuery.isEmpty() ? "" : " AND " + rangePriceQuery) +
                         "GROUP BY p.id, p.name, p.description, p.sellingPrice, p.stock, p.categoryId, p.discountId, p.isSale " +
                         "ORDER BY COUNT(r.productId) DESC " +
@@ -589,7 +590,7 @@ public class ProductDAO {
                         "LEFT JOIN rate r ON p.id = r.productId " +
                         "WHERE "
                         + (kwQuery.isEmpty() ? "" : kwQuery + " AND ") +
-                        " p.isSale = 1 "
+                        " p.isSale IN (1, 3) "
                         + (rangePriceQuery.isEmpty() ? "" : " AND " + rangePriceQuery) +
                         "GROUP BY p.id, p.name, p.description, p.sellingPrice, p.stock, p.categoryId, p.discountId, p.isSale " +
                         "ORDER BY AVG(r.starRatings) DESC " +
@@ -600,7 +601,7 @@ public class ProductDAO {
                         "FROM product p " +
                         "WHERE "
                         + (kwQuery.isEmpty() ? "" : kwQuery + " AND ") +
-                        " p.isSale = 1 "
+                        " p.isSale IN (1, 3) "
                         + (rangePriceQuery.isEmpty() ? "" : " AND " + rangePriceQuery) +
                         "ORDER BY p.sellingPrice ASC " +
                         "LIMIT ? OFFSET ?";
@@ -610,7 +611,7 @@ public class ProductDAO {
                         "FROM product p " +
                         "WHERE "
                         + (kwQuery.isEmpty() ? "" : kwQuery + " AND ") +
-                        " p.isSale = 1 "
+                        " p.isSale IN (1, 3) "
                         + (rangePriceQuery.isEmpty() ? "" : " AND " + rangePriceQuery) +
                         "ORDER BY p.sellingPrice DESC " +
                         "LIMIT ? OFFSET ?";
@@ -621,7 +622,7 @@ public class ProductDAO {
                         "LEFT JOIN discount d ON p.discountId = d.id " +
                         "WHERE "
                         + (kwQuery.isEmpty() ? "" : kwQuery + " AND ") +
-                        " p.isSale = 1 " +
+                        " p.isSale IN (1, 3) " +
                         "  AND d.startDate <= NOW() AND d.endDate >= NOW() "
                         + (rangePriceQuery.isEmpty() ? "" : " AND " + rangePriceQuery) +
                         "ORDER BY d.percentageOff DESC " +
@@ -630,7 +631,7 @@ public class ProductDAO {
             case SortOption.SORT_STOCK:
                 sql = "SELECT * FROM product p WHERE "
                         + (kwQuery.isEmpty() ? "" : kwQuery + " AND ") +
-                        " isSale = 1 "
+                        " isSale IN (1, 3) "
                         + (rangePriceQuery.isEmpty() ? "" : " AND " + rangePriceQuery) +
                         "ORDER BY p.stock DESC " +
                         " LIMIT ? OFFSET ?";
@@ -639,7 +640,7 @@ public class ProductDAO {
                 sql = "SELECT p.* FROM product p " +
                         "LEFT JOIN inventory i ON p.id = i.productId WHERE "
                         + (kwQuery.isEmpty() ? "" : kwQuery + " AND ") +
-                        " p.isSale = 1 "
+                        " p.isSale IN (1, 3) "
                         + (rangePriceQuery.isEmpty() ? "" : " AND " + rangePriceQuery) +
                         " ORDER BY i.createDate DESC " +
                         " LIMIT ? OFFSET ?";
@@ -657,7 +658,7 @@ public class ProductDAO {
 
     public static int getFindProductNumber(String nameP) {
         return JDBIConnector.me().withHandle(handle ->
-                handle.createQuery("SELECT count(id) FROM `product` WHERE name LIKE :name AND isSale = 1")
+                handle.createQuery("SELECT count(id) FROM `product` WHERE name LIKE :name AND isSale IN (1, 3)")
                         .bind("name", "%" + nameP + "%")
                         .mapTo(Integer.class).one());
     }
@@ -667,7 +668,7 @@ public class ProductDAO {
 
     public static long getNumberAvailProduct() {
         return JDBIConnector.me().withHandle(handle ->
-                handle.createQuery("select count(id) from product where stock>0 and isSale!=0").mapTo(Long.class).one());
+                handle.createQuery("select count(id) from product where stock>0 and isSale IN (1, 3)").mapTo(Long.class).one());
     }
 
     public static List<InventoryProduct> getTopSoldoutProduct(int number) {
@@ -856,7 +857,7 @@ public class ProductDAO {
     }
     public static List<Product> getAllProducts(int limit, int offset) {
         List<Product> products = JDBIConnector.me().withHandle(handle ->
-                handle.createQuery("select * from `product` where isSale=1 LIMIT ? OFFSET ?")
+                handle.createQuery("select * from `product` where isSale IN (1, 3) LIMIT ? OFFSET ?")
                         .bind(0, limit)
                         .bind(1, offset)
                         .mapToBean(Product.class)

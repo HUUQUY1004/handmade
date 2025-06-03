@@ -167,16 +167,6 @@
                     Quản lý đơn hàng custom
                 </a>
 
-                <a href="<%=request.getContextPath()%>/admin?func=preorder_management"
-                   class="nav-item nav-link
-                    <%if(func.equals("preorder_management")){%>
-                   active
-                    <%}%>"><i
-                        class="bi bi-calendar-check me-2"
-                ></i>
-                    Quản lý Đặt Trước
-                </a>
-
                 <a href="<%=request.getContextPath()%>/admin?func=customer_management"
                    class="nav-item nav-link
                    <%if(func.equals("customer_management")){%>
