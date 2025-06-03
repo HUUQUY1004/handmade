@@ -16,4 +16,28 @@ public class PreOrderService {
     public static void addPreOrder(int id, int amount, Date dateEnd){PreOrderDAO.addPreOrder(id, amount, dateEnd);}
     public static void removePreOrderById(int id){PreOrderDAO.removePreOrderById(id);}
     public static List<PreOrder> getAllPreOrder(){return PreOrderDAO.getAllPreOrder();}
+    public void reducePreOrderAmount(int productId, int quantity) {
+        PreOrderDAO.reducePreOrderAmount(productId, quantity);
+    }
+    public void processExpiredPreOrderIfNeeded(int productId) {
+        model.bean.PreOrder preOrder = getPreOrderById(productId);
+        if (preOrder != null && preOrder.getAmount() <= 0) {
+            // Set product isSale to 2 (out of stock)
+            model.bean.Product p = model.service.ProductService.getInstance().getProductById(productId);
+            if (p != null) {
+                p.setIsSale(2);
+                model.service.ProductService.getInstance().editProduct(
+                    String.valueOf(productId),
+                    p.getName(),
+                    p.getDescription(),
+                    p.getSellingPrice(),
+                    String.valueOf(p.getCategoryId()),
+                    String.valueOf(p.getDiscountId()),
+                    2
+                );
+            }
+            // Remove pre-order entry
+            removePreOrderById(productId);
+        }
+    }
 }
