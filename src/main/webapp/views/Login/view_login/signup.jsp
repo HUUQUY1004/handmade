@@ -201,6 +201,74 @@
 
 
     </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            //Kiểm tra xác thực lại mật khẩu ngay tại trang jsp
+            function validatePassword() {
+                var password = document.getElementById("pass").value.trim();
+                var verifyPassword = document.getElementById("verify").value.trim();
+                var errorMessageElement = document.getElementById("verify-error");
+
+                if(password !== verifyPassword) {
+                    errorMessageElement.innerHTML = "Xác thực mật khẩu không khớp";
+                }
+                else {
+                    errorMessageElement.innerHTML = "";
+                }
+
+            }
+
+
+
+
+            document.getElementById("verify").addEventListener("input", validatePassword);
+
+                });
+        function validatePhoneNumber() {
+            var phoneNumber = document.getElementById("tel").value.trim();
+            var errorMessageElement = document.getElementById("phoneError");
+            var registerButton = document.getElementById("submit_button");
+
+            if (phoneNumber.length <10) {
+                errorMessageElement.innerHTML = "Số điện thoại phải đủ 10 số!";
+                registerButton.disabled = true; // Vô hiệu hóa nút "Đăng ký"
+            } else {
+                errorMessageElement.innerHTML = "";
+                registerButton.disabled = false; // Cho phép nút "Đăng ký" được click
+            }
+        }
+
+
+        function validateCharacter() {
+            var password = document.getElementById("pass").value.trim();
+            var errorMessageElement = document.getElementById("passwordError");
+            var registerButton = document.getElementById("submit_button");
+
+            // Biểu thức chính quy kiểm tra xem mật khẩu có chứa ít nhất một ký tự đặc biệt hay không
+            var specialCharRegex = /[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/;
+
+            if (password.length < 6 || !specialCharRegex.test(password)) {
+                errorMessageElement.innerHTML = "Mật khẩu phải có ít nhất 8 ký tự và chứa ít nhất một ký tự đặc biệt";
+                registerButton.disabled = true; // Vô hiệu hóa nút "Đăng ký"
+            } else {
+                errorMessageElement.innerHTML = "";
+                registerButton.disabled = false; // Cho phép nút "Đăng ký" được click
+            }
+        }
+
+
+
+      function formatPhone(input) {
+          var phoneNum = input.value.replace(/\D/g, '');
+           phoneNum = phoneNum.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3');
+          input.value = phoneNum
+      }
+
+    function validateForm() {
+            return validatePhoneNumber() && validateCharacter();
+    }
+
+        </script>
 </head>
 <body>
 
@@ -324,73 +392,5 @@
 </section>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        //Kiểm tra xác thực lại mật khẩu ngay tại trang jsp
-        function validatePassword() {
-            var password = document.getElementById("pass").value.trim();
-            var verifyPassword = document.getElementById("verify").value.trim();
-            var errorMessageElement = document.getElementById("verify-error");
-
-            if(password !== verifyPassword) {
-                errorMessageElement.innerHTML = "Xác thực mật khẩu không khớp";
-            }
-            else {
-                errorMessageElement.innerHTML = "";
-            }
-
-        }
-
-
-
-
-        document.getElementById("verify").addEventListener("input", validatePassword);
-
-    });
-    function validatePhoneNumber() {
-        var phoneNumber = document.getElementById("tel").value.trim();
-        var errorMessageElement = document.getElementById("phoneError");
-        var registerButton = document.getElementById("submit_button");
-
-        if (phoneNumber.length <10) {
-            errorMessageElement.innerHTML = "Số điện thoại phải đủ 10 số!";
-            registerButton.disabled = true; // Vô hiệu hóa nút "Đăng ký"
-        } else {
-            errorMessageElement.innerHTML = "";
-            registerButton.disabled = false; // Cho phép nút "Đăng ký" được click
-        }
-    }
-
-
-    function validateCharacter() {
-        var password = document.getElementById("pass").value.trim();
-        var errorMessageElement = document.getElementById("passwordError");
-        var registerButton = document.getElementById("submit_button");
-
-        // Biểu thức chính quy kiểm tra xem mật khẩu có chứa ít nhất một ký tự đặc biệt hay không
-        var specialCharRegex = /[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/;
-
-        if (password.length < 6 || !specialCharRegex.test(password)) {
-            errorMessageElement.innerHTML = "Mật khẩu phải có ít nhất 8 ký tự và chứa ít nhất một ký tự đặc biệt";
-            registerButton.disabled = true; // Vô hiệu hóa nút "Đăng ký"
-        } else {
-            errorMessageElement.innerHTML = "";
-            registerButton.disabled = false; // Cho phép nút "Đăng ký" được click
-        }
-    }
-
-
-
-    function formatPhone(input) {
-        var phoneNum = input.value.replace(/\D/g, '');
-        phoneNum = phoneNum.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3');
-        input.value = phoneNum
-    }
-
-    function validateForm() {
-        return validatePhoneNumber() && validateCharacter();
-    }
-
-</script>
 </body>
 </html>

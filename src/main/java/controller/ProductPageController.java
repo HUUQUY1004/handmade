@@ -19,13 +19,8 @@ import java.util.List;
 
 @WebServlet("/productsPage")
 public class ProductPageController extends HttpServlet {
-    public ProductPageController() {
-        System.out.println("ProductPageController constructor called!");
-    }
-
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        System.out.println("hihihi");
         String categoryFilter = req.getParameter("categoryFilter");
         String isDiscount = req.getParameter("isDiscount");
         List<Product> products = (isDiscount == null || isDiscount.equals("false")) ?
@@ -33,6 +28,12 @@ public class ProductPageController extends HttpServlet {
                         .getProductByFilter(categoryFilter, SortOption.SORT_DEFAULT, null, null, 15, 0)
                 : ProductService.getInstance()
                 .getProductByFilter(categoryFilter, SortOption.SORT_DISCOUNT, null, null, 15, 0);
+        
+        // Filter to only show products with isSale = 1 or isSale = 3
+        products = products.stream()
+                .filter(p -> p.getIsSale() == 1 || p.getIsSale() == 3)
+                .toList();
+                
         req.setAttribute("products", products);
         req.setAttribute("filterFromHome", categoryFilter);
         req.setAttribute("isDiscount", isDiscount);
@@ -82,6 +83,10 @@ public class ProductPageController extends HttpServlet {
                         List<Product> products =
                                 ProductService.getInstance()
                                         .getProductBySearchFilter(searchFilter, sortValue, startPriceValue, endPriceValue, limitValue, offsetValue);
+                        // Filter to only show products with isSale = 1 or isSale = 3
+                        products = products.stream()
+                                .filter(p -> p.getIsSale() == 1 || p.getIsSale() == 3)
+                                .toList();
                         for (Product p : products) {
                             res.add(new ProductResponseForProductsPage(p.getId(), p.getName(), p.getSellingPrice(),
                                     p.getStock(), ProductService.getInstance().productPriceIncludeDiscount(p),
@@ -98,7 +103,10 @@ public class ProductPageController extends HttpServlet {
                         List<Product> products =
                                 ProductService.getInstance()
                                         .getProductByFilter(categoryFilter, sortValue, startPriceValue, endPriceValue, limitValue, offsetValue);
-
+                        // Filter to only show products with isSale = 1 or isSale = 3
+                        products = products.stream()
+                                .filter(p -> p.getIsSale() == 1 || p.getIsSale() == 3)
+                                .toList();
                         for (Product p : products) {
                             res.add(new ProductResponseForProductsPage(p.getId(), p.getName(), p.getSellingPrice(), p.getStock(),
                                     ProductService.getInstance().productPriceIncludeDiscount(p), ImageService.pathImageOnly(p.getId()),

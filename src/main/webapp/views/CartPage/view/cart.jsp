@@ -83,19 +83,14 @@
             itemEntry.getValue().setPrice(price);
         }
 
-
-
-
-        if(stock ==0) {
+        // Remove forced quantity set for pre-order products. Only check for normal products.
+        if(stock == 0 && isSale != 3) {
             itemEntry.getValue().setQuantity(stock);
             messages.add("Sản phẩm " + itemEntry.getValue().getProduct().getName() + " đã hết hàng.");
-
-        } else if(itemEntry.getValue().getQuantity() > stock ) {
+        } else if(itemEntry.getValue().getQuantity() > stock && isSale != 3) {
             itemEntry.getValue().setQuantity(stock);
             messages.add("Sản phẩm " + itemEntry.getValue().getProduct().getName() + " chỉ còn " + stock + " sản phẩm.");
         }
-
-
     }
 
 
@@ -222,22 +217,25 @@
                                 </td>
                                 <td class="align-middle">
                                     <div class="quantity-box d-flex p-1 border justify-content-center">
-
-
-
-                                        <%--                                            <input type="hidden" name="actionCart" value="put">--%>
-
                                         <input type="hidden" name="id" value="<%=item.getProduct().getId()%>">
-
+                                        <% int preOrderAmount = -1;
+                                           if (item.getProduct().getIsSale() == 3) {
+                                               model.bean.PreOrder preOrder = model.service.PreOrderService.getInstance().getPreOrderById(item.getProduct().getId());
+                                               if (preOrder != null) {
+                                                   preOrderAmount = preOrder.getAmount();
+                                               }
+                                           }
+                                        %>
+                                        <% if (preOrderAmount > 0) { %>
+                                        <input type="hidden" id="preorder_amount_<%=item.getProduct().getId()%>" value="<%=preOrderAmount%>">
+                                        <% } %>
                                         <button id="increase_bt" type="submit" name="num" value="-1"
                                                 class="text-center border-0 bg-body fw-bold"
                                                 style="width: 30px;" >
                                             <a style="text-decoration: none" onclick="giamSL(this,<%=item.getProduct().getId()%>,<%=item.getPrice()%>)">-</a>
                                         </button>
-
                                         <input id="quantity_input<%=item.getProduct().getId()%>" readonly class="border-0 w-50 text-center" type="text"
                                                value="<%=item.getQuantity()%>" >
-
                                         <button type="submit"  name="num" value="1"
                                                 id="reduce_bt" class="text-center border-0 bg-body fw-bold"
                                                 style="width:30px;" >
@@ -427,10 +425,15 @@ function tangSL(btn,idProduct,priceProduct,stockProduct){
     let total_Cart = document.getElementById("total_Cart");
     let total = parseInt(total_Cart.innerText);
     let quantityInput = document.getElementById("quantity_input"+idProduct);
-    let quantity = quantityInput.value;
+    let quantity = parseInt(quantityInput.value);
     let num = 1;
-    console.log(quantity);
-    if(quantity < stockProduct){
+    // Check if this is a pre-order product
+    let preorderAmountInput = document.getElementById("preorder_amount_" + idProduct);
+    let maxQuantity = stockProduct;
+    if (preorderAmountInput && parseInt(preorderAmountInput.value) > 0) {
+        maxQuantity = parseInt(preorderAmountInput.value);
+    }
+    if(quantity < maxQuantity){
         $.ajax({
             url: "/HandMadeStore/add-cart",
             data: {
@@ -439,8 +442,7 @@ function tangSL(btn,idProduct,priceProduct,stockProduct){
                 num: num
             },
             success: function (response){
-                console.log("Thành công tang");
-                let  quantityAfter = parseInt(quantity) +1;
+                let  quantityAfter = quantity + 1;
                 quantityInput.value = quantityAfter;
                 let formatTotalItem = numberFomat.format(quantityAfter * priceProduct);
                 totalItem.innerText = formatTotalItem;
@@ -466,9 +468,9 @@ $(document).ready(function () {
     $("#btn-payment").click(function () {
         $.ajax({
             type:"GET",
-            url: "http://localhost:8080/HandMadeStore/payment",
+            url: "/HandMadeStore/payment",
             success: function (response) {
-                console.log("resp " , response)
+
 
                 if(response.isValid) {
 

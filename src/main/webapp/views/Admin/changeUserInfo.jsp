@@ -198,6 +198,7 @@
                 Tất cả
                 <span><%=all > 0 ? "(" + all + ")" : ""%></span>
             </button>
+            <a class="btn btn-info" href="<%=request.getContextPath()%>/user-custom" role="button">Custom</a>
             <button type="button" class="btn btn-warning" onclick="orderFilter(<%=user.getId()%>, <%=3%>,0)">
                 Chờ xác nhận
                 <span><%=s0 > 0 ? "(" + s0 + ")" : ""%></span>

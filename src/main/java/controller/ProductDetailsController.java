@@ -7,6 +7,7 @@ import model.bean.Rate;
 import model.dao.ProductDAO;
 import model.service.CategoryService;
 import model.service.ProductService;
+import model.service.PreOrderService;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -64,6 +65,17 @@ public class ProductDetailsController extends HttpServlet {
 
         //Caác thông tin dành cho mục bình luận
         req.setAttribute("listRate",rateList );
+
+        // Get pre-order amount if product is a pre-order product
+        if (product.getIsSale() == 3) {
+            model.bean.PreOrder preOrder = PreOrderService.getInstance().getPreOrderById(product.getId());
+            if (preOrder != null) {
+                req.setAttribute("preOrderAmount", preOrder.getAmount());
+            } else {
+                req.setAttribute("preOrderAmount", null);
+            }
+        }
+
          ServletContext context = req.getServletContext();
         String absolutePath = context.getRealPath("/");
         String jspPath = "/views/product-details/view/productdt.jsp";

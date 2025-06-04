@@ -149,6 +149,7 @@
                                 <option value="0" <%= ipd.getIsSale() == 0 ? "selected" : "" %>>Ngừng kinh doanh</option>
                                 <option value="2" <%= ipd.getIsSale() == 2 ? "selected" : "" %>>Tạm hết hàng</option>
                                 <option value="1" <%= ipd.getIsSale() == 1 ? "selected" : "" %>>Có sẵn</option>
+                                <option value="3" <%= ipd.getIsSale() == 3 ? "selected" : "" %>>Đặt trước</option>
                             </select>
                             <input type="hidden" id="selectedIsSale" name="selectedIsSale" value="<%= ipd.getIsSale() %>">
                             <label for="isSale">Trạng thái sản phẩm</label>

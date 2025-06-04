@@ -123,4 +123,8 @@ public class OrderService {
     public boolean updateOrderStatus(int orderId, int i) {
         return OrderDAO.updateOrderStatus(orderId, i);
     }
+
+    public List<OrderImage> getOrderCustomByCustomerId(int userId) {
+        return OrderDAO.getOrderCustomByCustomerId(userId);
+    }
 }
