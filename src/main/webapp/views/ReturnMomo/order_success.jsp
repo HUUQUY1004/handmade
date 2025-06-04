@@ -207,10 +207,10 @@
         </div>
 
         <div class="mt-4">
-            <a href="http://localhost:8080/handmade_war/views/Admin/changeUserInfo.jsp" class="btn btn-custom">
+            <a href="http://localhost:8080/HandMadeStore/views/Admin/changeUserInfo.jsp" class="btn btn-custom">
                 <i class="fas fa-list"></i> Xem đơn hàng của tôi
             </a>
-            <a href="http://localhost:8080/handmade_war/views/MainPage/view_mainpage/mainpage.jsp" class="btn btn-outline-custom">
+            <a href="http://localhost:8080/HandMadeStore/views/MainPage/view_mainpage/mainpage.jsp" class="btn btn-outline-custom">
                 <i class="fas fa-home"></i> Về trang chủ
             </a>
         </div>

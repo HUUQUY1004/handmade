@@ -319,7 +319,7 @@ function deleteRow(btn,idProduct,priceProduct) {
     console.log(quantityPresent);
     console.log(priceProduct*quantityPresent);
     $.ajax({
-        url: "/handmade_war/add-cart",
+        url: "/HandMadeStore/add-cart",
         method: "POST",
         data: {
             actionCart: actionCart,
@@ -387,7 +387,7 @@ function giamSL(btn,idProduct,priceProduct){
     console.log(quantity);
     if(quantity > 1){
         $.ajax({
-            url: "/handmade_war/add-cart",
+            url: "/HandMadeStore/add-cart",
             data: {
                 actionCart: "put",
                 id: idProduct,
@@ -432,7 +432,7 @@ function tangSL(btn,idProduct,priceProduct,stockProduct){
     console.log(quantity);
     if(quantity < stockProduct){
         $.ajax({
-            url: "/handmade_war/add-cart",
+            url: "/HandMadeStore/add-cart",
             data: {
                 actionCart: "put",
                 id: idProduct,
@@ -466,7 +466,7 @@ $(document).ready(function () {
     $("#btn-payment").click(function () {
         $.ajax({
             type:"GET",
-            url: "http://localhost:8080/handmade_war/payment",
+            url: "http://localhost:8080/HandMadeStore/payment",
             success: function (response) {
                 console.log("resp " , response)
 

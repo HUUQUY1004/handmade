@@ -67,7 +67,7 @@ async  function calculateFeeShip(cityValue, districtValue) {
     console.log(cityValue, districtValue)
     if (cityValue && districtValue) {
         try {
-            const url = `http://localhost:8080/handmade_war/shippingFee?city=${encodeURIComponent(cityValue)}&district=${encodeURIComponent(districtValue)}&value=${valuesOfGoods}`;
+            const url = `http://localhost:8080/HandMadeStore/shippingFee?city=${encodeURIComponent(cityValue)}&district=${encodeURIComponent(districtValue)}&value=${valuesOfGoods}`;
             const response = await fetch(url);
             const data = await response.json();
 

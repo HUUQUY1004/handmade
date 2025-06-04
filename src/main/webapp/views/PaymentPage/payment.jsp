@@ -430,7 +430,7 @@
                             Swal.showLoading();
                         }
                     }).then(() => {
-                        window.location.href = "/handmade_war/payment?backToCart=true"
+                        window.location.href = "/HandMadeStore/payment?backToCart=true"
                     })
                     clearInterval(countdownInterval);
                 }
@@ -447,7 +447,7 @@
                         Swal.showLoading();
                     }
                 }).then(() => {
-                    window.location.href = "/handmade_war/payment?backToCart=true"
+                    window.location.href = "/HandMadeStore/payment?backToCart=true"
                 })
                 clearInterval(countdownInterval);
             }
@@ -510,7 +510,7 @@
                 })
                 $.ajax({
                     type: "POST",
-                    url: "/handmade_war/payment",
+                    url: "/HandMadeStore/payment",
                     data: {
                         namePay: namePay,
                         phonePay: phonePay,
@@ -570,7 +570,7 @@
 
                 params.append('ship', shippingFee);
 
-                fetch("http://localhost:8080/handmade_war/payment-momo", {
+                fetch("http://localhost:8080/HandMadeStore/payment-momo", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/x-www-form-urlencoded"
@@ -612,7 +612,7 @@
 
               $.ajax({
                   type: "POST",
-                  url: "handmade_war/payment",
+                  url: "HandMadeStore/payment",
                   data: {
                       namePay: namePay,
                       phonePay: phonePay,
