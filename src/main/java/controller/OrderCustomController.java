@@ -46,6 +46,7 @@ public class OrderCustomController extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setCharacterEncoding("UTF-8");
         HttpSession session = req.getSession();
         User user = (User) session.getAttribute("auth");
 
@@ -56,6 +57,43 @@ public class OrderCustomController extends HttpServlet {
 
         String note = req.getParameter("note");
         String tel = req.getParameter("tel");
+
+        String recieveDate = req.getParameter("deliveryDate");
+
+        Date deliveryDate = null;
+        try {
+            deliveryDate = new SimpleDateFormat("yyyy-MM-dd").parse(recieveDate);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        String packaging = req.getParameter("packageType");
+        String color = req.getParameter("color");
+
+        if (packaging == null || packaging.isEmpty())
+            packaging = "Đóng gói mặc định";
+
+        if(color == null || color.isEmpty())
+            color = "Shop tự chọn";
+
+        String otherCustom = "Hình thức đóng gói: " + packaging + ", màu sắc: " + color;
+
+        String province = req.getParameter("province");
+        String district = req.getParameter("district");
+        String ward = req.getParameter("ward");
+        String numberAddress = req.getParameter("address");
+
+        System.out.println(province);
+        System.out.println(district);
+        System.out.println(ward);
+        System.out.println(numberAddress);
+
+        System.out.println(packaging);
+        System.out.println(color);
+
+
+
+        String address = numberAddress + ", " + ward + ", " + district + ", " + province;
 
 
         int productId = Integer.parseInt(req.getParameter("productId"));
@@ -98,21 +136,25 @@ public class OrderCustomController extends HttpServlet {
 
                 count++;
             }
-
-
-            for (String imagePath : savedImagePaths) {
-                OrderImage image = new OrderImage();
-                image.setUserId(user.getId());
-                image.setProductId(productId);
-                image.setImagePath(imagePath);
-                image.setOrderDate(new Date());
-                image.setTel(tel);
-                image.setStatus(0);
-                OrderDAO.addOrderImage(image);
-            }
-
-            req.setAttribute("success", true);
-            req.getRequestDispatcher("/views/order-custom/custom_response.jsp").forward(req, resp);
         }
+
+        for (String imagePath : savedImagePaths) {
+            System.out.println("dang o trong vong lap ne");
+            OrderImage image = new OrderImage();
+            image.setUserId(user.getId());
+            image.setProductId(productId);
+            image.setImagePath(imagePath);
+            image.setOrderDate(new Date());
+            image.setTel(tel);
+            image.setStatus(0);
+            image.setNote(note);
+            image.setAddress(address);
+            image.setOtherCustom(otherCustom);
+            image.setRecieveDate(deliveryDate);
+            OrderDAO.addOrderImage(image);
+        }
+
+        req.setAttribute("success", true);
+        req.getRequestDispatcher("/views/order-custom/custom_response.jsp").forward(req, resp);
     }
 }

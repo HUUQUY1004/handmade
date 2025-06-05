@@ -342,7 +342,7 @@ public class OrderDAO {
             throw new IllegalArgumentException("Đơn hàng custom không có");
         }
 
-        String sql = "INSERT INTO order_images (imagePath, productId, orderDate, tel, note, userId, status) VALUES (:imagePath, :productId, :orderDate, :tel, :note, :userId, :status)";
+        String sql = "INSERT INTO order_images (imagePath, productId, orderDate, tel, note, userId, status, address, recieveDate, otherCustom) VALUES (:imagePath, :productId, :orderDate, :tel, :note, :userId, :status, :address, :recieveDate, :otherCustom)";
 
         try {
             JDBIConnector.me().useHandle(handle -> {
@@ -354,8 +354,12 @@ public class OrderDAO {
                         .bind("note", orderImage.getNote())
                         .bind("userId", orderImage.getUserId())
                         .bind("status", orderImage.getStatus())
+                        .bind("address", orderImage.getAddress())
+                        .bind("recieveDate", orderImage.getRecieveDate())
+                        .bind("otherCustom", orderImage.getOtherCustom())
                         .execute();
             });
+            System.out.println("Add order custom");
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Thêm đơn hàng custom thất bại", e);

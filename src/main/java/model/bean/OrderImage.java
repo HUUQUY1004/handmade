@@ -14,24 +14,57 @@ public class OrderImage {
 
     private Date orderDate;
 
+    private Date recieveDate;
+
+    private String address;
+
     private String tel;
 
     private String note;
+
+    private String otherCustom;
 
     private int status;
 
     public OrderImage() {
     }
 
-    public OrderImage(int id, int userId, String imagePath, int productId, Date orderDate, String tel, String note, int status) {
+    public OrderImage(int id, int userId, String imagePath, int productId, Date orderDate, Date recieveDate, String address, String tel, String note, String otherCustom, int status) {
         this.id = id;
         this.userId = userId;
         this.imagePath = imagePath;
         this.productId = productId;
         this.orderDate = orderDate;
+        this.recieveDate = recieveDate;
+        this.address = address;
         this.tel = tel;
         this.note = note;
+        this.otherCustom = otherCustom;
         this.status = status;
+    }
+
+    public Date getRecieveDate() {
+        return recieveDate;
+    }
+
+    public void setRecieveDate(Date recieveDate) {
+        this.recieveDate = recieveDate;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getOtherCustom() {
+        return otherCustom;
+    }
+
+    public void setOtherCustom(String otherCustom) {
+        this.otherCustom = otherCustom;
     }
 
     public int getId() {
