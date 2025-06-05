@@ -14,73 +14,64 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
 
 @WebServlet(value = "/shippingFee")
 public class ShippingFee extends HttpServlet {
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String apiUrl = "https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee?service_id=53321&service_type_id=2";
-        String token = "764f6d03-4121-11ef-8e53-0a00184fe694";
-        String shopId = "192867";
-        String totalPrice = req.getParameter("tempPrice");
-        String wardCode = req.getParameter("wardCode");
-        String districtId = req.getParameter("districtId");
-        String weight = req.getParameter("totalWeight");
-        System.out.println("totalPrice:" + totalPrice + "wardCode: " + wardCode + "districtId: " + districtId + "weight: "+ weight);
-        try {
-            URL url = new URL(apiUrl+ "&insurance_value=" + totalPrice+ "&to_ward_code="+ wardCode+ "&to_district_id="+ districtId + "&weight=" + weight);
-            System.out.println("URL : " + url);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-            conn.setRequestProperty("token",token);
-            conn.setRequestProperty("shop_id", shopId);
-            conn.setRequestProperty("Content-Type", "application/json");
-
-
-            // Get the response code
-            int responseCode = conn.getResponseCode();
-
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                // Read the response body
-                InputStream inputStream = conn.getInputStream();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-                StringBuilder responseBuilder = new StringBuilder();
-                String line;
-
-                while ((line = reader.readLine()) != null) {
-                    responseBuilder.append(line);
-                }
-
-                reader.close();
-
-//                Parse Json từ response
-                String jsonResponse = responseBuilder.toString();
-                System.out.println("JSON Response: " + jsonResponse);
-                JsonObject jsonObject = JsonParser.parseString(jsonResponse).getAsJsonObject();
-                // lấy dữ liệu tại field data.
-                int totalFee = jsonObject.getAsJsonObject("data").get("total").getAsInt();
-//
-                req.setAttribute("shippingFee", totalFee);
-                System.out.println("Total: " + totalFee);
-                req.getRequestDispatcher("/views/PaymentPage/payment.jsp");
-                // Set content type and write JSON response to Servlet response
-                resp.setContentType("application/json");
-                resp.setCharacterEncoding("UTF-8");
-                resp.getWriter().write(jsonResponse);
-            } else {
-                // Handle non-OK response
-                resp.setStatus(responseCode);
-                resp.getWriter().write("Failed to fetch data from API. Status code: " + responseCode);
-            }
-
-            conn.disconnect();
-
-        } catch (Exception e) {
-            // Handle exception
-            e.printStackTrace();
-            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            resp.getWriter().write("Internal Server Error Occurred");
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String city = request.getParameter("city");
+        String district = request.getParameter("district");
+        String value = request.getParameter("value");
+        System.out.println(city + district);
+        // 🛠 Kiểm tra giá trị đầu vào
+        if (city == null || district == null || value == null || city.isEmpty() || district.isEmpty() || value.isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("{\"error\": \"Missing parameters\"}");
+            return;
         }
 
+        // Mã hóa tham số URL
+        String apiUrl = "https://services.giaohangtietkiem.vn/services/shipment/fee?"
+                + "pick_province=" + URLEncoder.encode("Hồ Chí Minh", StandardCharsets.UTF_8.toString())
+                + "&pick_district=" + URLEncoder.encode("Thủ Đức", StandardCharsets.UTF_8.toString())
+                + "&province=" + URLEncoder.encode(city, StandardCharsets.UTF_8.toString())
+                + "&district=" + URLEncoder.encode(district, StandardCharsets.UTF_8.toString())
+                + "&weight=" + URLEncoder.encode("1", StandardCharsets.UTF_8.toString())
+                + "&value=" + URLEncoder.encode(value, StandardCharsets.UTF_8.toString())
+                + "&deliver_option=" + URLEncoder.encode("none", StandardCharsets.UTF_8.toString());
+
+        System.out.println("API URL: " + apiUrl);
+
+        try {
+            URL url = new URL(apiUrl);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setRequestProperty("Token", "1IWspuqjIDEeKZd4S32CPHt8ajxOtfUPO1YKShf");
+
+            int responseCode = conn.getResponseCode();
+            System.out.println("Response Code: " + responseCode); //  Debug lỗi
+
+            if (responseCode == 200) {
+                Scanner scanner = new Scanner(new InputStreamReader(conn.getInputStream()));
+                StringBuilder jsonResponse = new StringBuilder();
+                while (scanner.hasNext()) {
+                    jsonResponse.append(scanner.nextLine());
+                }
+                scanner.close();
+
+                response.setContentType("application/json");
+                response.getWriter().write(jsonResponse.toString());
+            } else {
+                response.setStatus(responseCode);
+                response.getWriter().write("{\"error\": \"Failed to fetch data\"}");
+            }
+        } catch (Exception e) {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("{\"error\": \"" + e.getMessage() + "\"}");
+        }
     }
-}
+    }

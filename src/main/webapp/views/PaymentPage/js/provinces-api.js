@@ -1,58 +1,94 @@
-/*
-    Link tham khảo: https://github.com/tranvanhieu01012002/callApiProvinces
- */
+const citySelect =  document.querySelector("#provinceDropdown")
+const districtSelect = document.querySelector("#districtDropdown")
+const wardSelect = document.querySelector("#wardDropdown")
 
-// 1. what is API
-// 2. How do I call API
-// 3. Explain code
-const host = "https://provinces.open-api.vn/api/";
-var callAPI = (api) => {
-    return axios.get(api)
-        .then((response) => {
-            renderData(response.data, "province");
-        });
-}
-callAPI('https://provinces.open-api.vn/api/?depth=1');
-var callApiDistrict = (api) => {
-    return axios.get(api)
-        .then((response) => {
-            renderData(response.data.districts, "district");
-        });
-}
-var callApiWard = (api) => {
-    return axios.get(api)
-        .then((response) => {
-            renderData(response.data.wards, "ward");
-        });
-}
+const  valuesOfGoodsInput = document.querySelector('#valueOfGoods')
+const ship = document.getElementById("shippingFeeInput")
+const shipResults = document.getElementById("shippingFeeResult")
 
-var renderData = (array, select) => {
-    let row = ' <option disable value="">chọn</option>';
-    array.forEach(element => {
-        row += `<option value="${element.code}">${element.name}</option>`
+const totalAmount = document.getElementById("totalAmountInput")
+const totalAmountResults = document.getElementById("totalAmount")
+fetch("https://open.oapi.vn/location/provinces?page=0&size=100")
+    .then(res => res.json())
+    .then(data => {
+        data.data.forEach(province => {
+            const option = document.createElement("option");
+            option.value = province.name;
+            option.text = province.name;
+            option.setAttribute("data-province-id", province.id); // Lưu id thay vì provinceId
+            citySelect.appendChild(option);
+        });
     });
-    document.querySelector("#" + select).innerHTML = row
-}
+citySelect.addEventListener("change", () => {
+    const selectedOption = citySelect.options[citySelect.selectedIndex];
+    const provinceId = selectedOption.getAttribute("data-province-id");
+    districtSelect.innerHTML = "<option value=''>Chọn Huyện / Quận</option>";
+    wardSelect.innerHTML = "<option value=''>Chọn Xã / Phường</option>";
 
-$("#province").change(() => {
-    callApiDistrict(host + "p/" + $("#province").val() + "?depth=2");
-    printResult();
+    fetch(`https://open.oapi.vn/location/districts/${provinceId}?page=0&size=100`)
+        .then(res => res.json())
+        .then(data => {
+            data.data.forEach(district => {
+                const option = document.createElement("option");
+                option.value = district.name;
+                option.text = district.name;
+                option.setAttribute("data-district-id", district.id); // Lưu id thay vì districtId
+                districtSelect.appendChild(option);
+            });
+        });
 });
-$("#district").change(() => {
-    callApiWard(host + "d/" + $("#district").val() + "?depth=2");
-    printResult();
-});
-$("#ward").change(() => {
-    printResult();
-})
+districtSelect.addEventListener("change", () => {
+    const selectedOption = districtSelect.options[districtSelect.selectedIndex];
+    const districtId = selectedOption.getAttribute("data-district-id"); // Lấy id từ data attribute
 
-var printResult = () => {
-    if ($("#district").val() != "" && $("#province").val() != "" &&
-        $("#ward").val() != "") {
-        let result = $("#province option:selected").text() +
-            " | " + $("#district option:selected").text() + " | " +
-            $("#ward option:selected").text();
-        $("#result").text(result)
+    const selectedProvinceOption = citySelect.options[citySelect.selectedIndex];
+    const selectedDistrictOption = districtSelect.options[districtSelect.selectedIndex];
+
+    const provinceName = selectedProvinceOption.text
+    const districtName = selectedDistrictOption.text
+    wardSelect.innerHTML = "<option value=''>Chọn Xã / Phường</option>";
+
+    fetch(`https://open.oapi.vn/location/wards/${districtId}?page=0&size=100`)
+        .then(res => res.json())
+        .then(data => {
+            data.data.forEach(ward => {
+                const option = document.createElement("option");
+                option.value = ward.name;
+                option.text = ward.name;
+                option.setAttribute("data-ward-id", ward.id); // Lưu id thay vì wardId
+                wardSelect.appendChild(option);
+            });
+            calculateFeeShip(provinceName, districtName);
+        });
+});
+
+async  function calculateFeeShip(cityValue, districtValue) {
+    const valuesOfGoods = parseInt(valuesOfGoodsInput.value) || 0;
+    console.log(cityValue, districtValue)
+    if (cityValue && districtValue) {
+        try {
+            const url = `http://localhost:8080/HandMadeStore/shippingFee?city=${encodeURIComponent(cityValue)}&district=${encodeURIComponent(districtValue)}&value=${valuesOfGoods}`;
+            const response = await fetch(url);
+            const data = await response.json();
+
+            feeCost = parseInt(data.fee.fee) || 0;
+
+           ship.value = feeCost
+
+            totalAmount.value = valuesOfGoods + feeCost
+            console.log("Giá trị hàng hóa:", valuesOfGoods); // Debug
+            console.log("Phí ship:", feeCost); // Debug
+            console.log("Tổng cộng:", valuesOfGoods + feeCost); // Debug
+
+            // Định dạng thành tiền Việt Nam đồng
+            var formattedShippingFee = formatCurrency(feeCost);
+            var formattedTotalAmount = formatCurrency(valuesOfGoods + feeCost);
+
+           shipResults.innerText=formattedShippingFee
+            totalAmountResults.innerText = formattedTotalAmount
+        } catch (error) {
+            console.error("Lỗi khi lấy phí:", error);
+        }
     }
 
 }
