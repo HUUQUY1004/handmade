@@ -234,6 +234,16 @@ public class OrderDAO {
         return orderImages;
     }
 
+    public static OrderImage getOrderCustomById(int orderId) {
+        Optional<OrderImage> orderImage = JDBIConnector.me().withHandle(handle ->
+                handle.createQuery("select * from `order_images` where id=:orderId")
+                        .bind("orderId", orderId)
+                        .mapToBean(OrderImage.class)
+                        .stream().findFirst()
+        );
+        return orderImage.isEmpty() ? null : orderImage.get();
+    }
+
     /**
      * Thêm giỏ hàng - đặt hàng vào dâtabase !
      *

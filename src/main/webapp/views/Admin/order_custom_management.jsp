@@ -38,6 +38,7 @@
             integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script src="https://cdn.datatables.net/v/bs4-4.6.0/jq-3.7.0/dt-2.0.6/datatables.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         #detailOrder {
             position: fixed;
@@ -186,12 +187,12 @@
                             </span>
                         </td>
                         <td class="text-start">
-                            <button class="btn btn-sm btn-success" onclick="confirmOrder(<%=o.getId()%>)">
+                            <button type="button" class="btn btn-sm btn-success" onclick="confirmOrder(<%=o.getId()%>)">
                                 Xác nhận
                             </button>
                         </td>
                         <td class="text-start">
-                            <button class="btn btn-sm btn-danger" onclick="cancelOrder(<%=o.getId()%>)">
+                            <button type="button" class="btn btn-sm btn-danger" onclick="cancelOrder(<%=o.getId()%>)">
                                 Hủy đơn
                             </button>
                         </td>
@@ -256,32 +257,110 @@
     });
 
     function confirmOrder(orderId) {
-        $.post("<%=request.getContextPath()%>/admin/order-custom", {
-            action: "confirm",
-            orderId: orderId
-        }, function (response) {
-            if (response === "success") {
-                alert("Đã xác nhận đơn hàng!");
-                location.reload();
-            } else {
-                alert("Có lỗi xảy ra!");
+        Swal.fire({
+            title: 'Xác nhận đơn hàng?',
+            text: 'Bạn có chắc chắn muốn xác nhận đơn hàng này không?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Xác nhận',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Đang xác nhận đơn hàng...',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                $.post("<%=request.getContextPath()%>/admin/order-custom", {
+                    action: "confirm",
+                    orderId: orderId
+                }, function (response) {
+                    if (response === "success") {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Thành công!',
+                            text: 'Đơn hàng đã được xác nhận.'
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi!',
+                            text: 'Xác nhận đơn hàng thất bại.'
+                        });
+                    }
+                });
             }
         });
     }
 
+
+
     function cancelOrder(orderId) {
-        $.post("<%=request.getContextPath()%>/admin/order-custom", {
-            action: "cancel",
-            orderId: orderId
-        }, function (response) {
-            if (response === "success") {
-                alert("Đã hủy đơn hàng!");
-                location.reload();
-            } else {
-                alert("Có lỗi xảy ra!");
+        Swal.fire({
+            title: 'Hủy đơn hàng',
+            input: 'textarea',
+            inputLabel: 'Lý do hủy đơn hàng',
+            inputPlaceholder: 'Nhập lý do tại đây...',
+            inputAttributes: {
+                'aria-label': 'Nhập lý do tại đây'
+            },
+            showCancelButton: true,
+            confirmButtonText: 'Xác nhận hủy',
+            cancelButtonText: 'Đóng',
+            preConfirm: (cancelReason) => {
+                if (!cancelReason || cancelReason.trim() === '') {
+                    Swal.showValidationMessage('Vui lòng nhập lý do hủy đơn hàng');
+                }
+                return cancelReason;
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const cancelReason = result.value;
+
+                Swal.fire({
+                    title: 'Đang xử lý hủy đơn...',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                $.post("<%=request.getContextPath()%>/admin/order-custom", {
+                    action: "cancel",
+                    orderId: orderId,
+                    cancelReason: cancelReason
+                }, function (response) {
+                    if (response === "success") {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Đã hủy đơn hàng!',
+                            text: 'Thông tin đơn đã được cập nhật.'
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else if (response === "missing_reason") {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Thiếu lý do',
+                            text: 'Vui lòng nhập lý do hủy đơn hàng.'
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi!',
+                            text: 'Không thể hủy đơn hàng. Vui lòng thử lại.'
+                        });
+                    }
+                });
             }
         });
     }
+
 
     function asNameStatus(statusNumber) {
         const numericStatus = parseInt(statusNumber, 10); // Hoặc Number(status)
