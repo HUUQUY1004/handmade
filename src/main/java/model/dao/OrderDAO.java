@@ -234,6 +234,16 @@ public class OrderDAO {
         return orderImages;
     }
 
+    public static OrderImage getOrderCustomById(int orderId) {
+        Optional<OrderImage> orderImage = JDBIConnector.me().withHandle(handle ->
+                handle.createQuery("select * from `order_images` where id=:orderId")
+                        .bind("orderId", orderId)
+                        .mapToBean(OrderImage.class)
+                        .stream().findFirst()
+        );
+        return orderImage.isEmpty() ? null : orderImage.get();
+    }
+
     /**
      * Thêm giỏ hàng - đặt hàng vào dâtabase !
      *
@@ -332,7 +342,7 @@ public class OrderDAO {
             throw new IllegalArgumentException("Đơn hàng custom không có");
         }
 
-        String sql = "INSERT INTO order_images (imagePath, productId, orderDate, tel, note, userId, status) VALUES (:imagePath, :productId, :orderDate, :tel, :note, :userId, :status)";
+        String sql = "INSERT INTO order_images (imagePath, productId, orderDate, tel, note, userId, status, address, recieveDate, otherCustom) VALUES (:imagePath, :productId, :orderDate, :tel, :note, :userId, :status, :address, :recieveDate, :otherCustom)";
 
         try {
             JDBIConnector.me().useHandle(handle -> {
@@ -344,8 +354,12 @@ public class OrderDAO {
                         .bind("note", orderImage.getNote())
                         .bind("userId", orderImage.getUserId())
                         .bind("status", orderImage.getStatus())
+                        .bind("address", orderImage.getAddress())
+                        .bind("recieveDate", orderImage.getRecieveDate())
+                        .bind("otherCustom", orderImage.getOtherCustom())
                         .execute();
             });
+            System.out.println("Add order custom");
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Thêm đơn hàng custom thất bại", e);

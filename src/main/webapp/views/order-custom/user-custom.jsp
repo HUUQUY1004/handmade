@@ -51,6 +51,9 @@
                 <th class="text-nowrap">Mã ĐH</th>
                 <th class="text-nowrap">Ảnh custom</th>
                 <th class="text-nowrap">Ngày Đặt Hàng</th>
+                <th class="text-nowrap">Ngày giao hàng</th>
+                <th class="text-nowrap">Địa chỉ</th>
+                <th class="text-nowrap">Tùy chọn</th>
                 <th class="text-nowrap">Số điện thoại</th>
                 <th class="text-nowrap">Ghi chú</th>
                 <th class="text-nowrap">Trạng Thái</th>
@@ -70,6 +73,12 @@
                     <img src="<%=request.getContextPath() + "/" + o.getImagePath()%>" width="100px" height="100px">
                 </td>
                 <td class="text-start"><%=o.getOrderDate()%>
+                </td>
+                <td class="text-start"><%=o.getRecieveDate()%>
+                </td>
+                <td class="text-start"><%=o.getAddress()%>
+                </td>
+                <td class="text-start"><%=o.getOtherCustom()%>
                 </td>
                 <td class="text-start"><%=o.getTel()%>
                 </td>

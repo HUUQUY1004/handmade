@@ -127,4 +127,8 @@ public class OrderService {
     public List<OrderImage> getOrderCustomByCustomerId(int userId) {
         return OrderDAO.getOrderCustomByCustomerId(userId);
     }
+
+    public OrderImage getOrderCustomById(int orderId){
+        return OrderDAO.getOrderCustomById(orderId);
+    }
 }
