@@ -405,7 +405,7 @@
         });
         const startMillis = parseInt($('#paymentStartTime').val());
         const countDownEl = document.getElementById('count-down');
-        const countdownTime = 1 * 60 * 1000; // 2 phút = 120000 ms
+        const countdownTime = 10 * 60 * 1000; // 2 phút = 120000 ms
         const endTime = startMillis + countdownTime;
         function updateCountdown() {
             const now = Date.now();
@@ -462,30 +462,40 @@
     var districtAddress = "";
     var wardAddress = "";
 
-
-    // Gắn sự kiện input cho ô nhập địa chỉ
-
-
-    $("#address").on("input", function () {
-        updateFormattedAddressAndShip();
+    $("#provinceDropdown").on("change", function() {
+        provinceAddress = $(this).find("option:selected").text();
+        updateFormattedAddress();
     });
 
-    function updateFormattedAddressAndShip() {
-        var provinceAddress = $("#provinceDropdown option:selected").text();
-        var district = $("#districtDropdown option:selected").text();
-        var ward = $("#wardDropdown option:selected").text();
+    $("#districtDropdown").on("change", function() {
+        districtAddress = $(this).find("option:selected").text();
+        updateFormattedAddress();
+    });
+
+    $("#wardDropdown").on("change", function() {
+        wardAddress = $(this).find("option:selected").text();
+        updateFormattedAddress();
+    });
+
+    // Gắn sự kiện input cho ô nhập địa chỉ
+    $("#address").on("input", function () {
+        updateFormattedAddress();
+    });
+
+    function updateFormattedAddress() {
         var address = $("#address").val();
         var formatted = "";
 
         if (wardAddress === "" || districtAddress === "" || provinceAddress === "" || address === "") {
             formatted = "";
         } else {
-            formatted = address + wardAddress + districtAddress + provinceAddress;
+            formatted = address + ", " + wardAddress + ", " + districtAddress + ", " + provinceAddress;
         }
 
-        console.log(formatted)
+        console.log("Formatted address:", formatted);
         document.getElementById('formattedAddress').value = formatted;
     }
+
     $(document).ready(function () {
         $("#placeOrderBtn").on("click", function () {
             var namePay = document.getElementById("name").value;
@@ -494,11 +504,22 @@
             var shippingFee = document.getElementById("shippingFeeInput").value;
             var totalAmount = document.getElementById("totalAmountInput").value;
 
+            // Validate required fields
+            if (!namePay || !phonePay || !formattedAddress || !shippingFee || !totalAmount) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Vui lòng điền đầy đủ thông tin',
+                    text: 'Vui lòng kiểm tra lại các trường thông tin bắt buộc',
+                    showConfirmButton: true
+                });
+                return;
+            }
+
             //  Check method payment
             const selectedPayment = document.querySelector('input[name="flexRadioDefault"]:checked');
             const paymentMethod = selectedPayment ? selectedPayment.value : 'UNKNOWN';
             console.log('Payment Method:', paymentMethod);
-            console.log(totalAmount)
+            console.log('Total Amount:', totalAmount);
 
             if(paymentMethod === "COD"){
                 console.log({

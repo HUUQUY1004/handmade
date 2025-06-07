@@ -83,11 +83,30 @@
             itemEntry.getValue().setPrice(price);
         }
 
-        // Remove forced quantity set for pre-order products. Only check for normal products.
-        if(stock == 0 && isSale != 3) {
+        // Handle pre-order products (isSale = 3)
+        if (isSale == 3) {
+            model.bean.PreOrder preOrder = model.service.PreOrderService.getInstance().getPreOrderById(p.getId());
+            if (preOrder != null) {
+                int preOrderAmount = preOrder.getAmount();
+                // If there's stock available, use stock limit
+                if (stock > 0) {
+                    if (itemEntry.getValue().getQuantity() > stock) {
+                        itemEntry.getValue().setQuantity(stock);
+                        messages.add("Sản phẩm " + itemEntry.getValue().getProduct().getName() + " chỉ còn " + stock + " sản phẩm.");
+                    }
+                } 
+                // If no stock, use pre-order amount limit
+                else if (itemEntry.getValue().getQuantity() > preOrderAmount) {
+                    itemEntry.getValue().setQuantity(preOrderAmount);
+                    messages.add("Sản phẩm " + itemEntry.getValue().getProduct().getName() + " chỉ còn " + preOrderAmount + " sản phẩm cho đặt trước.");
+                }
+            }
+        }
+        // Handle normal products
+        else if (stock == 0) {
             itemEntry.getValue().setQuantity(stock);
             messages.add("Sản phẩm " + itemEntry.getValue().getProduct().getName() + " đã hết hàng.");
-        } else if(itemEntry.getValue().getQuantity() > stock && isSale != 3) {
+        } else if (itemEntry.getValue().getQuantity() > stock) {
             itemEntry.getValue().setQuantity(stock);
             messages.add("Sản phẩm " + itemEntry.getValue().getProduct().getName() + " chỉ còn " + stock + " sản phẩm.");
         }
@@ -269,8 +288,24 @@
                                 onclick="window.location = '../../MainPage/view_mainpage/mainpage.jsp'">Tiếp tục mua hàng
                         </button>
                         <%if(total > 0) {%>
-
-                     <%if(u != null){%>
+                        <% 
+                            boolean hasPreOrder = false;
+                            for (Item item : cart.getItems().values()) {
+                                if (item.getProduct().getIsSale() == 3 && item.getProduct().getStock() == 0) {
+                                    model.bean.PreOrder preOrder = model.service.PreOrderService.getInstance().getPreOrderById(item.getProduct().getId());
+                                    if (preOrder != null && preOrder.getAmount() > 0) {
+                                        hasPreOrder = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        %>
+                        <%if(hasPreOrder){%>
+                        <button type="button" id="btn-preorder-payment" class="complete_bt me-5" style="background-color: #ff9800;">
+                            Thanh toán đặt trước
+                        </button>
+                        <%}%>
+                        <%if(u != null){%>
                         <button type="button" id="btn-payment" class="complete_bt me-5"
                                 >Thanh Toán
                         </button>
@@ -413,9 +448,9 @@ function giamSL(btn,idProduct,priceProduct){
     }
 }
 // Tang So luong
-function tangSL(btn,idProduct,priceProduct,stockProduct){
-    let totalItem = document.getElementById("totalItem"+idProduct);
-    const numberFomat = Intl.NumberFormat('vi-VN',{
+function tangSL(btn, idProduct, priceProduct, stockProduct) {
+    let totalItem = document.getElementById("totalItem" + idProduct);
+    const numberFomat = Intl.NumberFormat('vi-VN', {
         style: 'currency',
         currency: "VND",
         minimumFractionDigits: 0,
@@ -424,16 +459,20 @@ function tangSL(btn,idProduct,priceProduct,stockProduct){
     let total_amount = document.getElementById("total_amount");
     let total_Cart = document.getElementById("total_Cart");
     let total = parseInt(total_Cart.innerText);
-    let quantityInput = document.getElementById("quantity_input"+idProduct);
+    let quantityInput = document.getElementById("quantity_input" + idProduct);
     let quantity = parseInt(quantityInput.value);
     let num = 1;
+
     // Check if this is a pre-order product
     let preorderAmountInput = document.getElementById("preorder_amount_" + idProduct);
     let maxQuantity = stockProduct;
-    if (preorderAmountInput && parseInt(preorderAmountInput.value) > 0) {
+
+    // If it's a pre-order product and has no stock, use pre-order amount
+    if (preorderAmountInput && stockProduct === 0) {
         maxQuantity = parseInt(preorderAmountInput.value);
     }
-    if(quantity < maxQuantity){
+
+    if (quantity < maxQuantity) {
         $.ajax({
             url: "/HandMadeStore/add-cart",
             data: {
@@ -441,8 +480,8 @@ function tangSL(btn,idProduct,priceProduct,stockProduct){
                 id: idProduct,
                 num: num
             },
-            success: function (response){
-                let  quantityAfter = quantity + 1;
+            success: function (response) {
+                let quantityAfter = quantity + 1;
                 quantityInput.value = quantityAfter;
                 let formatTotalItem = numberFomat.format(quantityAfter * priceProduct);
                 totalItem.innerText = formatTotalItem;
@@ -451,11 +490,15 @@ function tangSL(btn,idProduct,priceProduct,stockProduct){
                 total_amount.innerText = numberFomat.format(totalAfter);
             }
         })
-    }else{
+    } else {
+        let message = stockProduct === 0 ? 
+            "Không thể tăng số lượng vì đã đạt giới hạn đặt trước!" :
+            "Không thể tăng số lượng vì sản phẩm không đủ!";
+            
         Swal.fire({
             position: "center",
             icon: "error",
-            title: "Không thể tăng số lượng vì sản phẩm không đủ!",
+            title: message,
             showConfirmButton: false,
             timer: 1500
         });
@@ -510,6 +553,44 @@ $(document).ready(function () {
     }
 
 )
+
+// Add pre-order payment button handler
+$(document).ready(function () {
+    $("#btn-preorder-payment").click(function () {
+        $.ajax({
+            type:"GET",
+            url: "/HandMadeStore/payment",
+            data: { isPreOrder: true },
+            success: function (response) {
+                if(response.isValid) {
+                    window.location.href = "../../PaymentPage/payment.jsp?isPreOrder=true"
+                }
+                else {
+                    var errorMessageHtml = '<ul>';
+                    response.forEach(function(message) {
+                        errorMessageHtml += '<li>' + message + '</li>';
+                    });
+                    errorMessageHtml += '</ul>';
+
+                    Swal.fire({
+                        title: 'Thông báo',
+                        html: errorMessageHtml,
+                        icon: 'info',
+                        showCancelButton: true,
+                        confirmButtonText: 'Chấp nhận',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            location.reload()
+                        }
+                    });
+                }
+            },
+            error: function (xhr, status, error) {
+                console.log("Loi khi gui yeu cau ajax"+ error);
+            }
+        })
+    });
+});
 
 </script>
 </body>
