@@ -54,6 +54,14 @@ public class PreOrderDAO {
         );
     }
 
+    public static void increasePreOrderAmount(int productId, int quantity) {
+        JDBIConnector.me().useHandle(handle ->
+            handle.createUpdate("UPDATE pre_order SET amount = amount + :quantity WHERE id = :productId")
+                .bind("quantity", quantity)
+                .bind("productId", productId)
+                .execute()
+        );
+    }
 }
 
 

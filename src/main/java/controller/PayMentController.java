@@ -233,7 +233,15 @@ public class PayMentController extends HttpServlet {
             int productId = entry.getKey();
             Item item = entry.getValue();
             int quantity = item.getQuantity();
-            ProductService.getInstance().increaseStock(productId, quantity);
+            Product p = ProductService.getInstance().getProductById(productId);
+            
+            if (p.getIsSale() == 3 && p.getStock() == 0) {
+                // For pre-order products with no stock, increase pre-order amount
+                model.service.PreOrderService.getInstance().increasePreOrderAmount(productId, quantity);
+            } else {
+                // For normal products or pre-order products with stock, increase stock
+                ProductService.getInstance().increaseStock(productId, quantity);
+            }
         }
     }
 

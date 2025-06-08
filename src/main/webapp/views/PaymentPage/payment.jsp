@@ -187,7 +187,19 @@
                         Thanh toán
                     </div>
                     <div class="mt-4">
-
+                        <%
+                            boolean hasPreOrder = false;
+                            for (Item item : cart.getItems().values()) {
+                                if (item.getProduct().getIsSale() == 3 && item.getProduct().getStock() == 0) {
+                                    model.bean.PreOrder preOrder = model.service.PreOrderService.getInstance().getPreOrderById(item.getProduct().getId());
+                                    if (preOrder != null && preOrder.getAmount() > 0) {
+                                        hasPreOrder = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        %>
+                        <% if (!hasPreOrder) { %>
                         <div class="border alert alert-dismissible d-flex align-items-center payment-option" id="codOption">
                             <input class="form-check-input fs-5 me-3" style="cursor: pointer" type="radio"
                                    name="flexRadioDefault"
@@ -200,6 +212,7 @@
                             </label>
                             <i class="fa-regular fa-money-bill-1 fa-xl ms-auto" style="color: #357ebd;"></i>
                         </div>
+                        <% } %>
                         <img src="" alt="">
                         <input type="hidden" id="shippingFeeInput" name="shippingFee" value="">
                         <input type="hidden" id="totalAmountInput" name="totalAmount" value="">
@@ -211,7 +224,7 @@
                                id="momoPayment"
                                name="flexRadioDefault"
                                value="MOMO"
-                               onclick="hideBankaccount_infor()" checked>
+                               onclick="hideBankaccount_infor()" <%= hasPreOrder ? "checked" : "" %>>
                         <label class="form-check-label" style="cursor: pointer" for="momoPayment">
                             Thanh toán qua MOMO (Online)
                         </label>

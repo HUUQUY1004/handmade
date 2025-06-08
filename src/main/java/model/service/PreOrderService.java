@@ -19,6 +19,9 @@ public class PreOrderService {
     public void reducePreOrderAmount(int productId, int quantity) {
         PreOrderDAO.reducePreOrderAmount(productId, quantity);
     }
+    public void increasePreOrderAmount(int productId, int quantity) {
+        PreOrderDAO.increasePreOrderAmount(productId, quantity);
+    }
     public void processExpiredPreOrderIfNeeded(int productId) {
         model.bean.PreOrder preOrder = getPreOrderById(productId);
         if (preOrder != null && preOrder.getAmount() <= 0) {

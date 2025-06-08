@@ -378,25 +378,42 @@ function deleteRow(btn,idProduct,priceProduct) {
                     </div>
                 `);
                     return; // Ngừng thực hiện các bước tiếp theo
-
                 }
                 else {
+                    // Check if the deleted item was a pre-order product
+                    let isPreOrderProduct = false;
+                    let remainingPreOrderItems = 0;
+                    
+                    // Check remaining items for pre-order products
+                    $("#order-list tr").each(function() {
+                        let productId = $(this).find('input[name="id"]').val();
+                        if (productId) {
+                            let preorderAmountInput = $(`#preorder_amount_${productId}`);
+                            if (preorderAmountInput.length > 0) {
+                                remainingPreOrderItems++;
+                            }
+                        }
+                    });
 
+                    // Hide pre-order payment button if no pre-order items remain
+                    if (remainingPreOrderItems === 0) {
+                        $("#btn-preorder-payment").hide();
+                    }
 
-                let formatTotal = numberFomat.format(newTotal);
-                console.log(formatTotal);
-                total_amount.innerText = formatTotal;
-                total_Cart.innerText = newTotal;
-                handleDeleteToCart(response);
-                Swal.fire({
-                    position: "center",
-                    icon: "success",
-                    title: "Xóa Sản Phẩm Thành Công!",
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-
-        }}
+                    let formatTotal = numberFomat.format(newTotal);
+                    console.log(formatTotal);
+                    total_amount.innerText = formatTotal;
+                    total_Cart.innerText = newTotal;
+                    handleDeleteToCart(response);
+                    Swal.fire({
+                        position: "center",
+                        icon: "success",
+                        title: "Xóa Sản Phẩm Thành Công!",
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+        }
     })
 }
 
