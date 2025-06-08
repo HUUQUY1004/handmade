@@ -164,14 +164,14 @@
                     <span class="detail-label">
                         <i class="fas fa-hashtag"></i> Mã đơn hàng:
                     </span>
-                <span class="detail-value">${orderId}</span>
+                <span class="detail-value"><%=request.getParameter("orderId")%></span>
             </div>
 
             <div class="detail-row">
                     <span class="detail-label">
                         <i class="fas fa-credit-card"></i> Mã giao dịch:
                     </span>
-                <span class="detail-value">${transId}</span>
+                <span class="detail-value"><%=request.getParameter("transId")%></span>
             </div>
 
             <div class="detail-row">

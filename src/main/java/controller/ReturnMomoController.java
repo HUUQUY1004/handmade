@@ -156,7 +156,7 @@ public class ReturnMomoController extends HttpServlet {
 //                OrderDAO.addOrder()
 
                 // Redirect đến trang success
-                response.sendRedirect(request.getContextPath() + "/views/ReturnMomo/order_success.jsp");
+                response.sendRedirect(request.getContextPath() + "/views/ReturnMomo/order_success.jsp?orderId=" + orderId + "&transId=" + transId);
                 return;
 
             } else {
