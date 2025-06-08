@@ -1,11 +1,10 @@
 <%@ page import="model.bean.User" %>
 <%@ page import="model.bean.Cart" %>
-<%@ page import="java.util.Locale" %>
-<%@ page import="java.util.Currency" %>
 <%@ page import="java.text.NumberFormat" %>
 <%@ page import="model.bean.Item" %>
 <%@ page import="model.service.ImageService" %>
-<%@ page import="java.util.Map" %>
+<%@ page import="model.bean.Product" %>
+<%@ page import="java.util.*" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
     Long paymentStartTime = 0L;
@@ -64,6 +63,24 @@
     String address = request.getParameter("address") == null ? "" : request.getParameter("address");
     String notePay = request.getParameter("notePay") == null ? "" : request.getParameter("notePay");
 //    double totalMoney = Double.parseDouble(request.getParameter("pricePay") == null ? "" : request.getParameter("pricePay"));
+%>
+
+<%
+    boolean isPreOrderFlow = "true".equals(request.getParameter("isPreOrder"));
+    List<Item> displayItems = new ArrayList<>();
+    if (isPreOrderFlow) {
+        for (Item item : cart.getItems().values()) {
+            Product p = item.getProduct();
+            if (p.getIsSale() == 3 && p.getStock() == 0) {
+                model.bean.PreOrder preOrder = model.service.PreOrderService.getInstance().getPreOrderById(p.getId());
+                if (preOrder != null && preOrder.getAmount() > 0) {
+                    displayItems.add(item);
+                }
+            }
+        }
+    } else {
+        displayItems.addAll(cart.getItems().values());
+    }
 %>
 
 <form id="formPayment" action="<%=request.getContextPath()%>/payment" method="post">
@@ -177,6 +194,23 @@
                                     <label for="address" class="floatingInput">Ghi Chú(Tùy Chọn)</label>
                                 </div>
 
+                                <%
+                                    boolean hasPreOrder = false;
+                                    StringBuilder preOrderProducts = new StringBuilder();
+                                    for (Item item : cart.getItems().values()) {
+                                        if (item.getProduct().getIsSale() == 3 && item.getProduct().getStock() == 0) {
+                                            model.bean.PreOrder preOrder = model.service.PreOrderService.getInstance().getPreOrderById(item.getProduct().getId());
+                                            if (preOrder != null && preOrder.getAmount() > 0) {
+                                                hasPreOrder = true;
+                                                if (preOrderProducts.length() > 0) {
+                                                    preOrderProducts.append(", ");
+                                                }
+                                                preOrderProducts.append(item.getProduct().getName());
+                                            }
+                                        }
+                                    }
+                                %>
+
                             </div>
                         </div>
                     </div>
@@ -187,18 +221,6 @@
                         Thanh toán
                     </div>
                     <div class="mt-4">
-                        <%
-                            boolean hasPreOrder = false;
-                            for (Item item : cart.getItems().values()) {
-                                if (item.getProduct().getIsSale() == 3 && item.getProduct().getStock() == 0) {
-                                    model.bean.PreOrder preOrder = model.service.PreOrderService.getInstance().getPreOrderById(item.getProduct().getId());
-                                    if (preOrder != null && preOrder.getAmount() > 0) {
-                                        hasPreOrder = true;
-                                        break;
-                                    }
-                                }
-                            }
-                        %>
                         <% if (!hasPreOrder) { %>
                         <div class="border alert alert-dismissible d-flex align-items-center payment-option" id="codOption">
                             <input class="form-check-input fs-5 me-3" style="cursor: pointer" type="radio"
@@ -278,7 +300,7 @@
                 <div style="width: 90%;">
                     <table class="table table-striped table-borderless table-hover text-start">
                         <%double totalMoney = 0;%>
-                        <%for (Item i : cart.getItems().values()) {%>
+                        <%for (Item i : displayItems) {%>
                         <tr>
                             <td>
                                 <div>
@@ -296,7 +318,7 @@
                                 </div>
                             </td>
                             <%totalMoney += (i.getPrice() * i.getQuantity());%>
-                            <td><%=numberFormat.format(i.getPrice() * i.getQuantity())%>
+                            <td class="product-price"><%=numberFormat.format(i.getPrice() * i.getQuantity())%>
                             </td>
                         </tr>
                         <%}%>
@@ -314,6 +336,30 @@
                             <button type="button" class="btn btn-primary h-100 w-100 color-for-bg">Áp dụng</button>
                         </div>
                     </div>
+
+                    <% if (isPreOrderFlow) { %>
+                    <div class="row border-top py-3">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="preorderPaymentType" 
+                                           id="fullPayment" value="full" checked>
+                                    <label class="form-check-label" for="fullPayment">
+                                        Thanh toán toàn phần (100% giá trị sản phẩm)
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="preorderPaymentType" 
+                                           id="halfPayment" value="half">
+                                    <label class="form-check-label" for="halfPayment">
+                                        Thanh toán nửa giá (50% giá trị sản phẩm)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <% } %>
+
                     <div class="row border-top py-3">
                         <table class="table-borderless">
                             <thead>
@@ -327,9 +373,7 @@
                                 <th class="text-start fw-medium">
                                     Tạm tính
                                 </th>
-                                <td class="text-end pe-3"><%=numberFormat.format(totalMoney)%>
-                                </td>
-                                <input type="hidden" id="valueOfGoods" value=<%=totalMoney%>>
+                                <td id="valueOfGoods" class="text-end pe-3"></td>
                             </tr>
                             <tr>
                                 <th class="text-start fw-medium">
@@ -358,7 +402,7 @@
                     </div>
                     <div class="row py-3 ">
                         <div class="col-5 d-flex align-items-center">
-                            <span><a href="/HandMadeStore/payment?backToCart=true"
+                            <span><a href="javascript:void(0)" onclick="handleBackToCart()"
                                      class="text-decoration-none color-for-text"><strong><</strong> Quay lại giỏ hàng</a></span>
                         </div>
 
@@ -510,15 +554,69 @@
     }
 
     $(document).ready(function () {
+        // Function to calculate pre-order total
+        function calculatePreOrderTotal() {
+            let total = 0;
+            let paymentType = $('input[name="preorderPaymentType"]:checked').val();
+            $(".table-striped tr").each(function() {
+                let priceText = $(this).find('.product-price').text().replace(/[^0-9]/g, '');
+                let rowTotal = parseInt(priceText, 10) || 0; // Already price * quantity
+                if (paymentType === 'half') {
+                    rowTotal = rowTotal * 0.5;
+                }
+                total += rowTotal;
+            });
+            return total;
+        }
+
+        // Function to update all prices
+        function updateAllPrices() {
+            // Get the numeric subtotal (not formatted string)
+            let subtotal = calculatePreOrderTotal();
+
+            // Update subtotal row (formatted)
+            let formattedSubtotal = new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            }).format(subtotal);
+            $('.table-borderless tbody tr:first-child td:last').text(formattedSubtotal);
+            $('#valueOfGoods').val(subtotal);
+
+            // Get the shipping fee as a number (from hidden input)
+            let shippingFee = parseFloat($('#shippingFeeInput').val().replace(/[^0-9.-]+/g, "")) || 0;
+
+            // Calculate and update total (subtotal + shipping)
+            let totalWithShipping = subtotal + shippingFee;
+            let formattedTotal = new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            }).format(totalWithShipping);
+
+            $('#totalAmount span').text(formattedTotal);
+            $('#totalAmountInput').val(totalWithShipping);
+        }
+
+        // Calculate initial prices for pre-order payments
+        if ($('input[name="preorderPaymentType"]').length > 0) {
+            updateAllPrices();
+        }
+
+        // Update when payment type changes
+        $('input[name="preorderPaymentType"]').change(function() {
+            updateAllPrices();
+        });
+
+        // Handle place order button click
         $("#placeOrderBtn").on("click", function () {
             var namePay = document.getElementById("name").value;
             var phonePay = document.getElementById("phone_number").value;
             var formattedAddress = document.getElementById("formattedAddress").value;
             var shippingFee = document.getElementById("shippingFeeInput").value;
-            var totalAmount = document.getElementById("totalAmountInput").value;
+            var totalWithShipping = parseFloat($('#totalAmountInput').val()) || 0;
+            var paymentType = $('input[name="preorderPaymentType"]:checked').val();
 
             // Validate required fields
-            if (!namePay || !phonePay || !formattedAddress || !shippingFee || !totalAmount) {
+            if (!namePay || !phonePay || !formattedAddress || !shippingFee) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Vui lòng điền đầy đủ thông tin',
@@ -528,11 +626,11 @@
                 return;
             }
 
-            //  Check method payment
+            // Check method payment
             const selectedPayment = document.querySelector('input[name="flexRadioDefault"]:checked');
             const paymentMethod = selectedPayment ? selectedPayment.value : 'UNKNOWN';
             console.log('Payment Method:', paymentMethod);
-            console.log('Total Amount:', totalAmount);
+            console.log('Total Amount:', totalWithShipping);
 
             if(paymentMethod === "COD"){
                 console.log({
@@ -540,7 +638,7 @@
                     phonePay: phonePay,
                     formattedAddress: formattedAddress,
                     shippingFee: shippingFee,
-                    totalAmount: totalAmount
+                    totalAmount: totalWithShipping
                 })
                 $.ajax({
                     type: "POST",
@@ -550,7 +648,7 @@
                         phonePay: phonePay,
                         formattedAddress: formattedAddress,
                         shippingFee: shippingFee,
-                        totalAmount: totalAmount
+                        totalAmount: totalWithShipping
                     },
                     dataType: "json",
                     success: function (response) {
@@ -570,7 +668,7 @@
                                 showConfirmButton: false,
                                 timer: 4000
                             }).then(function () {
-                                window.location.href = "../../views/MainPage/view_mainpage/mainpage.jsp"; // Chuyển hướng về trang chủ
+                                window.location.href = "../../views/MainPage/view_mainpage/mainpage.jsp";
                             });
                         } else {
                             console.log("Error:", response.message)
@@ -583,8 +681,7 @@
                         }
                     },
                     error: function (xhr, status, error) {
-                        // Xử lý lỗi nếu có
-                        console.log("lõi", xhr)
+                        console.log("lỗi", xhr)
                         Swal.fire({
                             icon: 'error',
                             title: 'Đã có lỗi xảy ra.',
@@ -595,14 +692,14 @@
                 });
             }
             else if (paymentMethod === "MOMO"){
-                console.log("Total Amount:" , totalAmount)
+                console.log("Total Amount:" , totalWithShipping)
                 const params = new URLSearchParams();
                 params.append('address', formattedAddress);
                 params.append('phoneNumber', phonePay);
                 params.append('username', namePay);
-                params.append('totalAmount', totalAmount  || 50000);
-
+                params.append('totalAmount', totalWithShipping || 50000);
                 params.append('ship', shippingFee);
+                params.append('paymentType', paymentType);
 
                 fetch("http://localhost:8080/HandMadeStore/payment-momo", {
                     method: "POST",
@@ -613,7 +710,8 @@
                 })
                     .then(res => res.json())
                     .then(data => {
-                        window.location.href = data.payUrl;                    })
+                        window.location.href = data.payUrl;
+                    })
                     .catch(console.error);
             }
             else {
@@ -623,12 +721,8 @@
                     showConfirmButton: true
                 });
             }
-
-
-        })
-
-
-    })
+        });
+    });
 
     function formatCurrency(amount) {
         return new Intl.NumberFormat('vi-VN', {style: 'currency', currency: 'VND'}).format(amount);
@@ -698,6 +792,29 @@
               });
           }
 
+    // Add this function to handle back to cart navigation
+    function handleBackToCart() {
+        // Check if there are any pre-order products
+        let hasPreOrder = false;
+        $(".table-striped tr").each(function() {
+            let productId = $(this).find('input[name="id"]').val();
+            if (productId) {
+                let preorderAmountInput = $(`#preorder_amount_${productId}`);
+                if (preorderAmountInput.length > 0) {
+                    hasPreOrder = true;
+                    return false; // break the loop
+                }
+            }
+        });
+
+        if (hasPreOrder) {
+            // For pre-order products, just go back to cart without affecting pre-order amounts
+            window.location.href = "/HandMadeStore/payment?backToCart=true&preservePreOrder=true";
+        } else {
+            // For normal products, use the regular back to cart
+            window.location.href = "/HandMadeStore/payment?backToCart=true";
+        }
+    }
 
 </script>
 <script src="./js/provinces-api.js"></script>
