@@ -69,9 +69,11 @@
 
 <%
     boolean isPreOrder = request.getParameter("isPreOrder") != null && request.getParameter("isPreOrder").equals("true");
+    boolean hasPreOrderProducts = request.getParameter("hasPreOrderProducts") != null && request.getParameter("hasPreOrderProducts").equals("true");
+    
+    // Create a separate map for pre-order items without modifying the original cart
+    Map<Integer, Item> preOrderItems = new HashMap<>();
     if (isPreOrder) {
-        // Filter cart to only show pre-order items
-        Map<Integer, Item> preOrderItems = new HashMap<>();
         for (Map.Entry<Integer, Item> entry : cart.getItems().entrySet()) {
             Item item = entry.getValue();
             if (item.getProduct().getIsSale() == 3 && item.getProduct().getStock() == 0) {
@@ -81,7 +83,6 @@
                 }
             }
         }
-        cart.setItems(preOrderItems);
     }
 %>
 
@@ -206,7 +207,7 @@
                         Thanh toán
                     </div>
                     <div class="mt-4">
-                        <% if (!isPreOrder) { %>
+                        <% if (!isPreOrder && !hasPreOrderProducts) { %>
                         <div class="border alert alert-dismissible d-flex align-items-center payment-option"
                              id="codOption">
                             <input class="form-check-input fs-5 me-3" style="cursor: pointer" type="radio"
@@ -288,7 +289,7 @@
                 <div style="width: 90%;">
                     <table class="table table-striped table-borderless table-hover text-start">
                         <%double totalMoney = 0;%>
-                        <%for (Item i : cart.getItems().values()) {%>
+                        <%for (Item i : isPreOrder ? preOrderItems.values() : cart.getItems().values()) {%>
                         <tr>
                             <td>
                                 <div>
@@ -424,6 +425,15 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     $(document).ready(function () {
+        // Check if there are pre-order products
+        const hasPreOrderProducts = <%=hasPreOrderProducts%>;
+        
+        // If there are pre-order products, disable COD option and select MOMO
+        if (hasPreOrderProducts) {
+            const momoRadio = $('#momoPayment');
+            momoRadio.prop('checked', true);
+        }
+
         //  SET default method payment
         const codOption = document.getElementById('codOption');
         const codRadio = document.getElementById('thanhtoankhigiaohang');
@@ -434,6 +444,11 @@
 
         paymentOptions.forEach(option => {
             option.addEventListener('click', function () {
+                // Skip if this is the COD option and there are pre-order products
+                if (this.id === 'codOption' && hasPreOrderProducts) {
+                    return;
+                }
+
                 // Bỏ highlight tất cả options
                 paymentOptions.forEach(opt => opt.classList.remove('selected'));
 
