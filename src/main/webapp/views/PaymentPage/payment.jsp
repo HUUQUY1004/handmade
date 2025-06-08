@@ -467,7 +467,7 @@
         });
         const startMillis = parseInt($('#paymentStartTime').val());
         const countDownEl = document.getElementById('count-down');
-        const countdownTime = 10 * 60 * 1000; // 2 phút = 120000 ms
+        const countdownTime = 1 * 60 * 1000; // 2 phút = 120000 ms
         const endTime = startMillis + countdownTime;
 
         function updateCountdown() {
@@ -650,8 +650,8 @@
                 params.append('phoneNumber', phonePay);
                 params.append('username', namePay);
                 params.append('totalAmount', totalAmount || 50000);
-
                 params.append('ship', shippingFee);
+                params.append('isPreOrder', '<%=isPreOrder%>');
 
                 fetch("http://localhost:8080/HandMadeStore/payment-momo", {
                     method: "POST",

@@ -36,28 +36,27 @@ public class PaymentMomoController extends HttpServlet {
         String orderId = UUID.randomUUID().toString();
         String requestId = UUID.randomUUID().toString();
 
-
-        String amount = req.getParameter("totalAmount");
         String address = req.getParameter("address");
         String phoneNumber = req.getParameter("phoneNumber");
-        String receiver = req.getParameter("username");
+        String username = req.getParameter("username");
+        String totalAmount = req.getParameter("totalAmount");
         String ship = req.getParameter("ship");
+        String isPreOrder = req.getParameter("isPreOrder");
 
-        System.out.println("amoumt: " + amount);
+        System.out.println("amoumt: " + totalAmount);
         String orderInfo = "Thanh toán đơn hàng " + orderId;
         String requestType = "captureWallet";
 
-//        Save other infor
-        HttpSession sessionForPayment = req.getSession();
-        sessionForPayment.setAttribute("address", address);
-        sessionForPayment.setAttribute("phone", phoneNumber);
-        sessionForPayment.setAttribute("receiver", receiver);
-        sessionForPayment.setAttribute("totalPay", amount);
-        sessionForPayment.setAttribute("ship", ship);
+        // Store necessary information in session
+        session.setAttribute("address", address);
+        session.setAttribute("phone", phoneNumber);
+        session.setAttribute("receiver", username);
+        session.setAttribute("ship", ship);
+        session.setAttribute("isPreOrder", isPreOrder);
 
         // Tạo raw signature
         String rawHash = "accessKey=" + accessKey +
-                "&amount=" + amount +
+                "&amount=" + totalAmount +
                 "&extraData=" +
                 "&ipnUrl=" + ipnUrl +
                 "&orderId=" + orderId +
@@ -74,7 +73,7 @@ public class PaymentMomoController extends HttpServlet {
                 + "\"partnerCode\":\"" + partnerCode + "\","
                 + "\"accessKey\":\"" + accessKey + "\","
                 + "\"requestId\":\"" + requestId + "\","
-                + "\"amount\":\"" + amount + "\","
+                + "\"amount\":\"" + totalAmount + "\","
                 + "\"orderId\":\"" + orderId + "\","
                 + "\"orderInfo\":\"" + orderInfo + "\","
                 + "\"redirectUrl\":\"" + redirectUrl + "\","
@@ -92,9 +91,8 @@ public class PaymentMomoController extends HttpServlet {
         System.out.println("payUrl: " +payUrl);
         resp.setContentType("application/json");
         resp.getWriter().write("{\"payUrl\":\"" + payUrl + "\"}");
-
-
     }
+
     public String hmacSHA256(String data, String key) {
         try {
             SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(), "HmacSHA256");
