@@ -167,7 +167,13 @@
                         <%}%>
                         <div class="add-to-cart">
                             <button onclick="addcart(this,<%=pfp.getId()%>)">
-                                <span class="fw-bold">Thêm vào giỏ <i class="fa-solid fa-cart-shopping"></i></span>
+                                <span class="fw-bold">
+                                    <% if (pfp.getIsSale() == 3 && pfp.getStock() == 0 && PreOrderService.getInstance().getPreOrderById(pfp.getId()) != null) { %>
+                                        Đặt trước <i class="fa-solid fa-cart-shopping"></i>
+                                    <% } else { %>
+                                        Thêm vào giỏ <i class="fa-solid fa-cart-shopping"></i>
+                                    <% } %>
+                                </span>
                             </button>
                         </div>
                         <div style="position: absolute; bottom: 0; width: 100%">

@@ -216,15 +216,11 @@ public class PayMentController extends HttpServlet {
             Product p = ProductService.getInstance().getProductById(productId);
             if (p.getIsSale() == 1) {
                 ProductService.getInstance().reduceStock(productId, quantity);
-            } else if (p.getIsSale() == 3) {
-                if (p.getStock() > 0) {
-                    ProductService.getInstance().reduceStock(productId, quantity);
-                } else {
-                    model.service.PreOrderService.getInstance().reducePreOrderAmount(productId, quantity);
-                    // After reducing, check if pre-order amount is now zero and process accordingly
-                    model.service.PreOrderService.getInstance().processExpiredPreOrderIfNeeded(productId);
-                }
+            } else if (p.getIsSale() == 3 && p.getStock() > 0) {
+                // Only reduce stock for pre-order products that have stock
+                ProductService.getInstance().reduceStock(productId, quantity);
             }
+            // Pre-order products with no stock will be handled after successful payment
         }
     }
 
@@ -233,7 +229,12 @@ public class PayMentController extends HttpServlet {
             int productId = entry.getKey();
             Item item = entry.getValue();
             int quantity = item.getQuantity();
-            ProductService.getInstance().increaseStock(productId, quantity);
+            Product p = ProductService.getInstance().getProductById(productId);
+            // Only increase stock for normal products or pre-order products with stock
+            if (p.getIsSale() == 1 || (p.getIsSale() == 3 && p.getStock() > 0)) {
+                ProductService.getInstance().increaseStock(productId, quantity);
+            }
+            // Do NOT increase preOrderAmount for pre-order products with no stock when backToCart
         }
     }
 

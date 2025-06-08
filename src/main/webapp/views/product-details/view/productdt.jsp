@@ -5,7 +5,8 @@
 <%@ page import="model.bean.*" %>
 <%@ page import="model.dao.UserDAO" %>
 <%@ page import="model.service.ProductService" %>
-<%@ page import="model.service.UserService" %><%--
+<%@ page import="model.service.UserService" %>
+<%@ page import="model.service.PreOrderService" %><%--
   Created by IntelliJ IDEA.
   User: Kien Nguyen
   Date: 12/11/2023
@@ -170,48 +171,48 @@
             <%}%>
             <% Object preOrderAmountObj = request.getAttribute("preOrderAmount"); %>
             <% if (product.getStock() > 0) { %>
-                <div class="state-pd my-2">
-                    <label class="me-2 label-title">
-                        Còn <strong style="color: #ff1a1a"><%=product.getStock()%></strong> sản phẩm
-                    </label>
-                    <label class="me-2 "> <strong>| Trạng thái :</strong>
-                        <%
-                            String status = "Ngừng kinh doanh";
-                            switch (product.getIsSale()) {
-                                case 1:
-                                    status = "Có sẵn";
-                                    break;
-                                case 2:
-                                    status = "Tạm hết hàng";
-                                    break;
-                                case 3:
-                                    status = "Được đặt trước";
-                                    break;
-                            }
-                        %>
-                        <%=status%>
-                    </label>
-                </div>
-            <% } else if (product.getIsSale() == 3) { %>
-                <% if (preOrderAmountObj != null) { %>
-                    <div class="state-pd my-2">
-                        <label class="me-2 label-title">
-                            Được đặt trước <strong style="color: #ff1a1a"><%=preOrderAmountObj%></strong> sản phẩm
-                        </label>
-                        <label class="me-2 "> <strong>| Trạng thái :</strong> Được đặt trước</label>
-                    </div>
-                <% } else { %>
-                    <script>
-                        window.onload = function() {
-                            Swal.fire({
-                                icon: 'info',
-                                title: 'Chưa đăng ký đặt hàng trước',
-                                text: 'Sản phẩm này hiện chưa mở đặt trước.',
-                                confirmButtonText: 'Đóng'
-                            });
+            <div class="state-pd my-2">
+                <label class="me-2 label-title">
+                    Còn <strong style="color: #ff1a1a"><%=product.getStock()%></strong> sản phẩm
+                </label>
+                <label class="me-2 "> <strong>| Trạng thái :</strong>
+                    <%
+                        String status = "Ngừng kinh doanh";
+                        switch (product.getIsSale()) {
+                            case 1:
+                                status = "Có sẵn";
+                                break;
+                            case 2:
+                                status = "Tạm hết hàng";
+                                break;
+                            case 3:
+                                status = "Được đặt trước";
+                                break;
                         }
-                    </script>
-                <% } %>
+                    %>
+                    <%=status%>
+                </label>
+            </div>
+            <% } else if (product.getIsSale() == 3) { %>
+            <% if (preOrderAmountObj != null) { %>
+            <div class="state-pd my-2">
+                <label class="me-2 label-title">
+                    Được đặt trước <strong style="color: #ff1a1a"><%=preOrderAmountObj%></strong> sản phẩm
+                </label>
+                <label class="me-2 "> <strong>| Trạng thái :</strong> Được đặt trước</label>
+            </div>
+            <% } else { %>
+            <script>
+                window.onload = function() {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Chưa đăng ký đặt hàng trước',
+                        text: 'Sản phẩm này hiện chưa mở đặt trước.',
+                        confirmButtonText: 'Đóng'
+                    });
+                }
+            </script>
+            <% } %>
             <% } %>
 
 
@@ -247,19 +248,37 @@
                     </div>
                 </div>
                 <button class="buy-btn col-4" style="font-size: 16px" <%=request.getAttribute("disable")%>>
+                    <% if (product.getIsSale() == 3 && product.getStock() == 0 && preOrderAmountObj != null) { %>
+                    Đặt trước
+                    <% } else { %>
                     Thêm vào giỏ hàng
+                    <% } %>
                 </button>
                 <% } else {%>
                 <a href="#relate" style="font-style: italic; font-size: 14px"> Xem các sản phẩm khác </a>
                 <%}%>
             </div>
 
-            <a class="order-btn" style="font-size: 16px" <%=request.getAttribute("disable")%>
-               href="<%=request.getContextPath()%>/order-custom?id=<%=product.getId()%>&category=<%=product.getCategoryId()%>"
-            >
-                Tùy chỉnh
-            </a>
+            <% if (product.getIsSale() == 3 && product.getStock() == 0 && preOrderAmountObj != null) {
+                PreOrder preOrder = PreOrderService.getInstance().getPreOrderById(product.getId());
+                if (preOrder != null) {
+                    java.text.SimpleDateFormat inputFormat = new java.text.SimpleDateFormat("yyyy-MM-dd");
+                    java.text.SimpleDateFormat outputFormat = new java.text.SimpleDateFormat("dd/MM/yyyy");
+                    String formattedDate = outputFormat.format(preOrder.getDateEnd());
+            %>
+            <div class="text-danger mt-2 mb-3" style="font-size: 14px">
+                Đây là hàng đặt trước, ngày dự kiến có hàng: <strong><%=formattedDate%></strong>
+            </div>
+            <% } %>
+            <% } %>
 
+            <div class="mt-3">
+                <a class="order-btn" style="font-size: 16px" <%=request.getAttribute("disable")%>
+                   href="<%=request.getContextPath()%>/order-custom?id=<%=product.getId()%>&category=<%=product.getCategoryId()%>"
+                >
+                    Tùy chỉnh
+                </a>
+            </div>
 
             <hr class="mx-auto">
             <h4 class=" mt-4 mb-4 ">Chi tiết sản phẩm</h4>
