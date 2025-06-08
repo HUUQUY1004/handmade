@@ -59,7 +59,7 @@
 <%
     //Xử lý trường hợp, stock giảm sau khi khách đã thêm vào giỏ hàng trước đó => thông báo xin lỗi.
     List<String> messages = new ArrayList<>();
-    boolean isBackToCart = "true".equals(request.getParameter("backToCart"));
+
 
     Iterator<Map.Entry<Integer, Item>> entryIterator = cart.getItems().entrySet().iterator();
     while (entryIterator.hasNext()) {
@@ -95,8 +95,8 @@
                         messages.add("Sản phẩm " + itemEntry.getValue().getProduct().getName() + " chỉ còn " + stock + " sản phẩm.");
                     }
                 } 
-                // If no stock and not coming back from payment page, use pre-order amount limit
-                else if (!isBackToCart && itemEntry.getValue().getQuantity() > preOrderAmount) {
+                // If no stock, use pre-order amount limit
+                else if (itemEntry.getValue().getQuantity() > preOrderAmount) {
                     itemEntry.getValue().setQuantity(preOrderAmount);
                     messages.add("Sản phẩm " + itemEntry.getValue().getProduct().getName() + " chỉ còn " + preOrderAmount + " sản phẩm cho đặt trước.");
                 }
@@ -400,18 +400,18 @@ function deleteRow(btn,idProduct,priceProduct) {
                         $("#btn-preorder-payment").hide();
                     }
 
-                let formatTotal = numberFomat.format(newTotal);
-                console.log(formatTotal);
-                total_amount.innerText = formatTotal;
-                total_Cart.innerText = newTotal;
-                handleDeleteToCart(response);
-                Swal.fire({
-                    position: "center",
-                    icon: "success",
-                    title: "Xóa Sản Phẩm Thành Công!",
-                    showConfirmButton: false,
-                    timer: 1500
-                });
+                    let formatTotal = numberFomat.format(newTotal);
+                    console.log(formatTotal);
+                    total_amount.innerText = formatTotal;
+                    total_Cart.innerText = newTotal;
+                    handleDeleteToCart(response);
+                    Swal.fire({
+                        position: "center",
+                        icon: "success",
+                        title: "Xóa Sản Phẩm Thành Công!",
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
                 }
         }
     })
@@ -574,10 +574,28 @@ $(document).ready(function () {
 // Add pre-order payment button handler
 $(document).ready(function () {
     $("#btn-preorder-payment").click(function () {
+        // Filter only pre-order items
+        let preOrderItems = [];
+        $("#order-list tr").each(function() {
+            let productId = $(this).find('input[name="id"]').val();
+            if (productId) {
+                let preorderAmountInput = $(`#preorder_amount_${productId}`);
+                if (preorderAmountInput.length > 0) {
+                    let quantity = $(this).find('input[id^="quantity_input"]').val();
+                    preOrderItems.push({
+                        id: productId,
+                        quantity: quantity
+                    });
+                }
+            }
+        });
+
         $.ajax({
-            type:"GET",
+            type: "GET",
             url: "/HandMadeStore/payment",
-            data: { isPreOrder: true },
+            data: { 
+                isPreOrder: true
+            },
             success: function (response) {
                 if(response.isValid) {
                     window.location.href = "../../PaymentPage/payment.jsp?isPreOrder=true"
@@ -604,6 +622,12 @@ $(document).ready(function () {
             },
             error: function (xhr, status, error) {
                 console.log("Loi khi gui yeu cau ajax"+ error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Có lỗi xảy ra',
+                    text: 'Vui lòng thử lại sau',
+                    showConfirmButton: true
+                });
             }
         })
     });

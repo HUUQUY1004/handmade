@@ -4,9 +4,6 @@ import model.bean.Cart;
 import model.bean.Order;
 import model.bean.User;
 import model.dao.OrderDAO;
-import model.bean.Item;
-import model.bean.Product;
-import java.util.Map;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -86,24 +83,7 @@ public class ReturnMomoController extends HttpServlet {
                 String address = (String) session.getAttribute("address");
                 String phone = (String) session.getAttribute("phone");
                 String  receiver= (String) session.getAttribute("receiver");
-
-                // Handle pre-order products after successful payment
-                for (Map.Entry<Integer, Item> entry : cart.getItems().entrySet()) {
-                    int productId = entry.getKey();
-                    Item item = entry.getValue();
-                    int quantity = item.getQuantity();
-                    Product p = model.service.ProductService.getInstance().getProductById(productId);
-                    
-                    if (p.getIsSale() == 3 && p.getStock() == 0) {
-                        // Reduce pre-order amount and check if expired
-                        model.service.PreOrderService.getInstance().reducePreOrderAmount(productId, quantity);
-                        model.bean.PreOrder preOrder = model.service.PreOrderService.getInstance().getPreOrderById(productId);
-                        if (preOrder != null && preOrder.getAmount() < quantity) {
-                            model.service.PreOrderService.getInstance().processExpiredPreOrderIfNeeded(productId);
-                        }
-                    }
-                }
-
+//                Integer totalPay = (Integer) session.getAttribute("totalPay");
                 Integer ship = null;
                 Object shipObj = session.getAttribute("ship");
                 if (shipObj instanceof Integer) {

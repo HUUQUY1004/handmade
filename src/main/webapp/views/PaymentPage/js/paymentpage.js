@@ -1,8 +1,3 @@
-
-
-
-
-
 function showPoliciesAndTerms(option) {
     var s = document.getElementById("infor_center");
     var t = document.getElementById("infor_center_title");
@@ -92,5 +87,8 @@ function showBankaccount_infor() {
     document.getElementById("bankaccount_infor").style.display = "block";
 }
 function hideBankaccount_infor() {
-    document.getElementById("bankaccount_infor").style.display = "none";
+    const bankAccountInfo = document.getElementById("bankaccount_infor");
+    if (bankAccountInfo) {
+        bankAccountInfo.style.display = "none";
+    }
 }
