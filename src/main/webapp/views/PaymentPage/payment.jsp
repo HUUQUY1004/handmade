@@ -1,10 +1,12 @@
 <%@ page import="model.bean.User" %>
 <%@ page import="model.bean.Cart" %>
+<%@ page import="java.util.Locale" %>
+<%@ page import="java.util.Currency" %>
 <%@ page import="java.text.NumberFormat" %>
 <%@ page import="model.bean.Item" %>
 <%@ page import="model.service.ImageService" %>
-<%@ page import="model.bean.Product" %>
-<%@ page import="java.util.*" %>
+<%@ page import="java.util.Map" %>
+<%@ page import="java.util.HashMap" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
     Long paymentStartTime = 0L;
@@ -66,20 +68,20 @@
 %>
 
 <%
-    boolean isPreOrderFlow = "true".equals(request.getParameter("isPreOrder"));
-    List<Item> displayItems = new ArrayList<>();
-    if (isPreOrderFlow) {
-        for (Item item : cart.getItems().values()) {
-            Product p = item.getProduct();
-            if (p.getIsSale() == 3 && p.getStock() == 0) {
-                model.bean.PreOrder preOrder = model.service.PreOrderService.getInstance().getPreOrderById(p.getId());
+    boolean isPreOrder = request.getParameter("isPreOrder") != null && request.getParameter("isPreOrder").equals("true");
+    if (isPreOrder) {
+        // Filter cart to only show pre-order items
+        Map<Integer, Item> preOrderItems = new HashMap<>();
+        for (Map.Entry<Integer, Item> entry : cart.getItems().entrySet()) {
+            Item item = entry.getValue();
+            if (item.getProduct().getIsSale() == 3 && item.getProduct().getStock() == 0) {
+                model.bean.PreOrder preOrder = model.service.PreOrderService.getInstance().getPreOrderById(item.getProduct().getId());
                 if (preOrder != null && preOrder.getAmount() > 0) {
-                    displayItems.add(item);
+                    preOrderItems.put(entry.getKey(), item);
                 }
             }
         }
-    } else {
-        displayItems.addAll(cart.getItems().values());
+        cart.setItems(preOrderItems);
     }
 %>
 
@@ -194,23 +196,6 @@
                                     <label for="address" class="floatingInput">Ghi Chú(Tùy Chọn)</label>
                                 </div>
 
-                                <%
-                                    boolean hasPreOrder = false;
-                                    StringBuilder preOrderProducts = new StringBuilder();
-                                    for (Item item : cart.getItems().values()) {
-                                        if (item.getProduct().getIsSale() == 3 && item.getProduct().getStock() == 0) {
-                                            model.bean.PreOrder preOrder = model.service.PreOrderService.getInstance().getPreOrderById(item.getProduct().getId());
-                                            if (preOrder != null && preOrder.getAmount() > 0) {
-                                                hasPreOrder = true;
-                                                if (preOrderProducts.length() > 0) {
-                                                    preOrderProducts.append(", ");
-                                                }
-                                                preOrderProducts.append(item.getProduct().getName());
-                                            }
-                                        }
-                                    }
-                                %>
-
                             </div>
                         </div>
                     </div>
@@ -221,8 +206,9 @@
                         Thanh toán
                     </div>
                     <div class="mt-4">
-                        <% if (!hasPreOrder) { %>
-                        <div class="border alert alert-dismissible d-flex align-items-center payment-option" id="codOption">
+                        <% if (!isPreOrder) { %>
+                        <div class="border alert alert-dismissible d-flex align-items-center payment-option"
+                             id="codOption">
                             <input class="form-check-input fs-5 me-3" style="cursor: pointer" type="radio"
                                    name="flexRadioDefault"
                                    id="thanhtoankhigiaohang"
@@ -238,15 +224,17 @@
                         <img src="" alt="">
                         <input type="hidden" id="shippingFeeInput" name="shippingFee" value="">
                         <input type="hidden" id="totalAmountInput" name="totalAmount" value="">
+                        <input type="hidden" id="isPreOrderPayment" name="isPreOrderPayment" value="<%=isPreOrder%>">
                     </div>
 
-                    <div class="border alert alert-dismissible d-flex align-items-center payment-option" id="momoOption">
+                    <div class="border alert alert-dismissible d-flex align-items-center payment-option"
+                         id="momoOption">
                         <input class="form-check-input fs-5 me-3" style="cursor: pointer" type="radio"
                                name="flexRadioDefault"
                                id="momoPayment"
                                name="flexRadioDefault"
                                value="MOMO"
-                               onclick="hideBankaccount_infor()" <%= hasPreOrder ? "checked" : "" %>>
+                               onclick="hideBankaccount_infor()" <%= isPreOrder ? "checked" : "" %>>
                         <label class="form-check-label" style="cursor: pointer" for="momoPayment">
                             Thanh toán qua MOMO (Online)
                         </label>
@@ -300,7 +288,7 @@
                 <div style="width: 90%;">
                     <table class="table table-striped table-borderless table-hover text-start">
                         <%double totalMoney = 0;%>
-                        <%for (Item i : displayItems) {%>
+                        <%for (Item i : cart.getItems().values()) {%>
                         <tr>
                             <td>
                                 <div>
@@ -318,7 +306,7 @@
                                 </div>
                             </td>
                             <%totalMoney += (i.getPrice() * i.getQuantity());%>
-                            <td class="product-price"><%=numberFormat.format(i.getPrice() * i.getQuantity())%>
+                            <td><%=numberFormat.format(i.getPrice() * i.getQuantity())%>
                             </td>
                         </tr>
                         <%}%>
@@ -336,30 +324,30 @@
                             <button type="button" class="btn btn-primary h-100 w-100 color-for-bg">Áp dụng</button>
                         </div>
                     </div>
-
-                    <% if (isPreOrderFlow) { %>
+                    <% if (isPreOrder) { %>
                     <div class="row border-top py-3">
                         <div class="col-12">
-                            <div class="mb-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="preorderPaymentType" 
-                                           id="fullPayment" value="full" checked>
-                                    <label class="form-check-label" for="fullPayment">
-                                        Thanh toán toàn phần (100% giá trị sản phẩm)
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="preorderPaymentType" 
-                                           id="halfPayment" value="half">
-                                    <label class="form-check-label" for="halfPayment">
-                                        Thanh toán nửa giá (50% giá trị sản phẩm)
-                                    </label>
+                            <div class="border alert alert-dismissible d-flex align-items-center payment-option">
+                                <div class="w-100">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="radio" name="preOrderPaymentType"
+                                               id="fullPayment" value="full" checked>
+                                        <label class="form-check-label" for="fullPayment">
+                                            Thanh toán toàn bộ
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="preOrderPaymentType"
+                                               id="halfPayment" value="half">
+                                        <label class="form-check-label" for="halfPayment">
+                                            Thanh toán 50% trước
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <% } %>
-
                     <div class="row border-top py-3">
                         <table class="table-borderless">
                             <thead>
@@ -373,7 +361,9 @@
                                 <th class="text-start fw-medium">
                                     Tạm tính
                                 </th>
-                                <td id="valueOfGoods" class="text-end pe-3"></td>
+                                <td class="text-end pe-3"><%=numberFormat.format(totalMoney)%>
+                                </td>
+                                <input type="hidden" id="valueOfGoods" value=<%=totalMoney%>>
                             </tr>
                             <tr>
                                 <th class="text-start fw-medium">
@@ -402,7 +392,7 @@
                     </div>
                     <div class="row py-3 ">
                         <div class="col-5 d-flex align-items-center">
-                            <span><a href="javascript:void(0)" onclick="handleBackToCart()"
+                            <span><a href="/HandMadeStore/payment?backToCart=true"
                                      class="text-decoration-none color-for-text"><strong><</strong> Quay lại giỏ hàng</a></span>
                         </div>
 
@@ -434,16 +424,16 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     $(document).ready(function () {
-
         //  SET default method payment
         const codOption = document.getElementById('codOption');
         const codRadio = document.getElementById('thanhtoankhigiaohang');
 
-        const paymentOptions = document.querySelectorAll('.payment-option');
+        // Only select payment method options (COD and MOMO)
+        const paymentOptions = document.querySelectorAll('#codOption, #momoOption');
         const paymentRadios = document.querySelectorAll('input[name="flexRadioDefault"]');
 
         paymentOptions.forEach(option => {
-            option.addEventListener('click', function() {
+            option.addEventListener('click', function () {
                 // Bỏ highlight tất cả options
                 paymentOptions.forEach(opt => opt.classList.remove('selected'));
 
@@ -464,9 +454,10 @@
         const countDownEl = document.getElementById('count-down');
         const countdownTime = 10 * 60 * 1000; // 2 phút = 120000 ms
         const endTime = startMillis + countdownTime;
+
         function updateCountdown() {
             const now = Date.now();
-            if(endTime > now){
+            if (endTime > now) {
                 const timeLeft = endTime - now;
 
                 if (timeLeft > 0) {
@@ -491,7 +482,7 @@
                     })
                     clearInterval(countdownInterval);
                 }
-            }else {
+            } else {
                 console.log("Countdown topped");
                 countDownEl.style.backgroundColor = '#8b8b8b'
                 Swal.fire({
@@ -519,17 +510,17 @@
     var districtAddress = "";
     var wardAddress = "";
 
-    $("#provinceDropdown").on("change", function() {
+    $("#provinceDropdown").on("change", function () {
         provinceAddress = $(this).find("option:selected").text();
         updateFormattedAddress();
     });
 
-    $("#districtDropdown").on("change", function() {
+    $("#districtDropdown").on("change", function () {
         districtAddress = $(this).find("option:selected").text();
         updateFormattedAddress();
     });
 
-    $("#wardDropdown").on("change", function() {
+    $("#wardDropdown").on("change", function () {
         wardAddress = $(this).find("option:selected").text();
         updateFormattedAddress();
     });
@@ -554,69 +545,15 @@
     }
 
     $(document).ready(function () {
-        // Function to calculate pre-order total
-        function calculatePreOrderTotal() {
-            let total = 0;
-            let paymentType = $('input[name="preorderPaymentType"]:checked').val();
-            $(".table-striped tr").each(function() {
-                let priceText = $(this).find('.product-price').text().replace(/[^0-9]/g, '');
-                let rowTotal = parseInt(priceText, 10) || 0; // Already price * quantity
-                if (paymentType === 'half') {
-                    rowTotal = rowTotal * 0.5;
-                }
-                total += rowTotal;
-            });
-            return total;
-        }
-
-        // Function to update all prices
-        function updateAllPrices() {
-            // Get the numeric subtotal (not formatted string)
-            let subtotal = calculatePreOrderTotal();
-
-            // Update subtotal row (formatted)
-            let formattedSubtotal = new Intl.NumberFormat('vi-VN', {
-                style: 'currency',
-                currency: 'VND'
-            }).format(subtotal);
-            $('.table-borderless tbody tr:first-child td:last').text(formattedSubtotal);
-            $('#valueOfGoods').val(subtotal);
-
-            // Get the shipping fee as a number (from hidden input)
-            let shippingFee = parseFloat($('#shippingFeeInput').val().replace(/[^0-9.-]+/g, "")) || 0;
-
-            // Calculate and update total (subtotal + shipping)
-            let totalWithShipping = subtotal + shippingFee;
-            let formattedTotal = new Intl.NumberFormat('vi-VN', {
-                style: 'currency',
-                currency: 'VND'
-            }).format(totalWithShipping);
-
-            $('#totalAmount span').text(formattedTotal);
-            $('#totalAmountInput').val(totalWithShipping);
-        }
-
-        // Calculate initial prices for pre-order payments
-        if ($('input[name="preorderPaymentType"]').length > 0) {
-            updateAllPrices();
-        }
-
-        // Update when payment type changes
-        $('input[name="preorderPaymentType"]').change(function() {
-            updateAllPrices();
-        });
-
-        // Handle place order button click
         $("#placeOrderBtn").on("click", function () {
             var namePay = document.getElementById("name").value;
             var phonePay = document.getElementById("phone_number").value;
             var formattedAddress = document.getElementById("formattedAddress").value;
             var shippingFee = document.getElementById("shippingFeeInput").value;
-            var totalWithShipping = parseFloat($('#totalAmountInput').val()) || 0;
-            var paymentType = $('input[name="preorderPaymentType"]:checked').val();
+            var totalAmount = document.getElementById("totalAmountInput").value;
 
             // Validate required fields
-            if (!namePay || !phonePay || !formattedAddress || !shippingFee) {
+            if (!namePay || !phonePay || !formattedAddress || !shippingFee || !totalAmount) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Vui lòng điền đầy đủ thông tin',
@@ -626,19 +563,19 @@
                 return;
             }
 
-            // Check method payment
+            //  Check method payment
             const selectedPayment = document.querySelector('input[name="flexRadioDefault"]:checked');
             const paymentMethod = selectedPayment ? selectedPayment.value : 'UNKNOWN';
             console.log('Payment Method:', paymentMethod);
-            console.log('Total Amount:', totalWithShipping);
+            console.log('Total Amount:', totalAmount);
 
-            if(paymentMethod === "COD"){
+            if (paymentMethod === "COD") {
                 console.log({
                     namePay: namePay,
                     phonePay: phonePay,
                     formattedAddress: formattedAddress,
                     shippingFee: shippingFee,
-                    totalAmount: totalWithShipping
+                    totalAmount: totalAmount
                 })
                 $.ajax({
                     type: "POST",
@@ -648,7 +585,7 @@
                         phonePay: phonePay,
                         formattedAddress: formattedAddress,
                         shippingFee: shippingFee,
-                        totalAmount: totalWithShipping
+                        totalAmount: totalAmount
                     },
                     dataType: "json",
                     success: function (response) {
@@ -668,7 +605,7 @@
                                 showConfirmButton: false,
                                 timer: 4000
                             }).then(function () {
-                                window.location.href = "../../views/MainPage/view_mainpage/mainpage.jsp";
+                                window.location.href = "../../views/MainPage/view_mainpage/mainpage.jsp"; // Chuyển hướng về trang chủ
                             });
                         } else {
                             console.log("Error:", response.message)
@@ -681,7 +618,8 @@
                         }
                     },
                     error: function (xhr, status, error) {
-                        console.log("lỗi", xhr)
+                        // Xử lý lỗi nếu có
+                        console.log("lõi", xhr)
                         Swal.fire({
                             icon: 'error',
                             title: 'Đã có lỗi xảy ra.',
@@ -690,16 +628,15 @@
                         });
                     }
                 });
-            }
-            else if (paymentMethod === "MOMO"){
-                console.log("Total Amount:" , totalWithShipping)
+            } else if (paymentMethod === "MOMO") {
+                console.log("Total Amount:", totalAmount)
                 const params = new URLSearchParams();
                 params.append('address', formattedAddress);
                 params.append('phoneNumber', phonePay);
                 params.append('username', namePay);
-                params.append('totalAmount', totalWithShipping || 50000);
+                params.append('totalAmount', totalAmount || 50000);
+
                 params.append('ship', shippingFee);
-                params.append('paymentType', paymentType);
 
                 fetch("http://localhost:8080/HandMadeStore/payment-momo", {
                     method: "POST",
@@ -713,108 +650,114 @@
                         window.location.href = data.payUrl;
                     })
                     .catch(console.error);
-            }
-            else {
+            } else {
                 Swal.fire({
                     icon: 'error',
                     title: 'Vui lòng chọn phương thức thanh toán.',
                     showConfirmButton: true
                 });
             }
-        });
-    });
+
+
+        })
+
+
+    })
 
     function formatCurrency(amount) {
         return new Intl.NumberFormat('vi-VN', {style: 'currency', currency: 'VND'}).format(amount);
     }
 
 
-          function sendDataToServlet() {
-              var namePay = document.getElementById("namePay").value;
-              var phonePay = document.getElementById("phonePay").value;
-              var formattedAddress = document.getElementById("formattedAddress").value;
-              var shippingFee = document.getElementById("shippingFeeInput").value;
-              var totalAmount = document.getElementById("totalAmountInput").value;
+    function sendDataToServlet() {
+        var namePay = document.getElementById("namePay").value;
+        var phonePay = document.getElementById("phonePay").value;
+        var formattedAddress = document.getElementById("formattedAddress").value;
+        var shippingFee = document.getElementById("shippingFeeInput").value;
+        var totalAmount = document.getElementById("totalAmountInput").value;
 
-              console.log("click button");
+        console.log("click button");
 
-              $.ajax({
-                  type: "POST",
-                  url: "HandMadeStore/payment",
-                  data: {
-                      namePay: namePay,
-                      phonePay: phonePay,
-                      formattedAddress: formattedAddress,
-                      shippingFee: shippingFee,
-                      totalAmount: totalAmount
-                  },
-                  dataType: "json",
-                  success: function(response) {
-                      if(response.success){
-                          alert("Thanh cong");
-                      Swal.fire({
-                                                title: "Cảm ơn bạn, đơn hàng đã được tạo!",
-                                                width: 600,
-                                                padding: "3em",
-                                                color: "rgba(123,255,2,0.45)",
-                                                background: "#fff url(/images/trees.png)",
-                                                backdrop: `
+        $.ajax({
+            type: "POST",
+            url: "HandMadeStore/payment",
+            data: {
+                namePay: namePay,
+                phonePay: phonePay,
+                formattedAddress: formattedAddress,
+                shippingFee: shippingFee,
+                totalAmount: totalAmount
+            },
+            dataType: "json",
+            success: function (response) {
+                if (response.success) {
+                    alert("Thanh cong");
+                    Swal.fire({
+                        title: "Cảm ơn bạn, đơn hàng đã được tạo!",
+                        width: 600,
+                        padding: "3em",
+                        color: "rgba(123,255,2,0.45)",
+                        background: "#fff url(/images/trees.png)",
+                        backdrop: `
                                                          rgba(0,0,123,0.4)
                                                         url("/images/nyan-cat.gif")
                                                             left top
                                                          no-repeat
-                          `                     ,
-                                                showConfirmButton: false,
-                                                timer: 2000
-                                            }).then(function () {
-                                                window.location.href = "/views/MainPage/view_mainpage/mainpage.jsp"; // Chuyển hướng về trang chủ
-                                            });
-                                            }
-                      else {
-                          console.log("Error:", response.message)
-                          Swal.fire({
-                              icon: 'error',
-                              title: 'Vui lòng kiểm tra các trường dữ liệu!',
-                              text: response.message,
-                              showConfirmButton: true
-                          });
-                      }
-                  },
-                  error: function(xhr, status, error) {
-                      // Xử lý lỗi nếu có
-                      Swal.fire({
-                          icon: 'error',
-                          title: 'Đặt hàng không thành công!',
-                          text: 'Vui lòng thử lại sau.',
-                          showConfirmButton: true
-                      });
-                  }
-              });
-          }
-
-    // Add this function to handle back to cart navigation
-    function handleBackToCart() {
-        // Check if there are any pre-order products
-        let hasPreOrder = false;
-        $(".table-striped tr").each(function() {
-            let productId = $(this).find('input[name="id"]').val();
-            if (productId) {
-                let preorderAmountInput = $(`#preorder_amount_${productId}`);
-                if (preorderAmountInput.length > 0) {
-                    hasPreOrder = true;
-                    return false; // break the loop
+                          `,
+                        showConfirmButton: false,
+                        timer: 2000
+                    }).then(function () {
+                        window.location.href = "/views/MainPage/view_mainpage/mainpage.jsp"; // Chuyển hướng về trang chủ
+                    });
+                } else {
+                    console.log("Error:", response.message)
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Vui lòng kiểm tra các trường dữ liệu!',
+                        text: response.message,
+                        showConfirmButton: true
+                    });
                 }
+            },
+            error: function (xhr, status, error) {
+                // Xử lý lỗi nếu có
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Đặt hàng không thành công!',
+                    text: 'Vui lòng thử lại sau.',
+                    showConfirmButton: true
+                });
             }
         });
-
-        if (hasPreOrder) {
-            // For pre-order products, just go back to cart without affecting pre-order amounts
-            window.location.href = "/HandMadeStore/payment?backToCart=true&preservePreOrder=true";
-        } else {
-            // For normal products, use the regular back to cart
-            window.location.href = "/HandMadeStore/payment?backToCart=true";
-        }
     }
+
+    $(document).ready(function () {
+        // Store original value when page loads
+        const originalValue = parseInt($('#valueOfGoods').val()) || 0;
+
+        // Handle pre-order payment type change
+        $('input[name="preOrderPaymentType"]').change(function () {
+            const isPreOrder = $('#isPreOrderPayment').val() === 'true';
+            if (isPreOrder) {
+                const paymentType = $(this).val();
+                const shippingFee = parseInt($('#shippingFeeInput').val()) || 0;
+
+                // Always use the original value as base
+                let newValue = originalValue;
+                if (paymentType === 'half') {
+                    newValue = Math.ceil(originalValue * 0.5); // Round up to nearest integer
+                }
+
+                // Update both Tạm tính and total amount
+                const totalAmount = newValue + shippingFee;
+
+                // Update the displays
+                $('table tbody tr:first-child td:last-child').text(formatCurrency(newValue));
+                $('#totalAmount').text(formatCurrency(totalAmount));
+                $('#totalAmountInput').val(totalAmount);
+            }
+        });
+    });
 
 </script>
 <script src="./js/provinces-api.js"></script>
