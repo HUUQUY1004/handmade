@@ -526,16 +526,28 @@ function tangSL(btn, idProduct, priceProduct, stockProduct) {
 // Validate trước khi vào trang thanh toán.
 $(document).ready(function () {
     $("#btn-payment").click(function () {
+        // Check if there are any pre-order products
+        let hasPreOrderProducts = false;
+        $("#order-list tr").each(function() {
+            let productId = $(this).find('input[name="id"]').val();
+            if (productId) {
+                let preorderAmountInput = $(`#preorder_amount_${productId}`);
+                if (preorderAmountInput.length > 0) {
+                    hasPreOrderProducts = true;
+                    return false; // break the loop
+                }
+            }
+        });
+
         $.ajax({
-            type:"GET",
+            type: "GET",
             url: "/HandMadeStore/payment",
+            data: {
+                hasPreOrderProducts: hasPreOrderProducts
+            },
             success: function (response) {
-
-
                 if(response.isValid) {
-
-                    window.location.href = "../../PaymentPage/payment.jsp"
-
+                    window.location.href = "../../PaymentPage/payment.jsp?hasPreOrderProducts=" + hasPreOrderProducts;
                 }
                 else {
                     var errorMessageHtml = '<ul>';
@@ -546,30 +558,23 @@ $(document).ready(function () {
 
                     Swal.fire({
                         title: 'Thông báo',
-                        html:  errorMessageHtml,
+                        html: errorMessageHtml,
                         icon: 'info',
                         showCancelButton: true,
                         confirmButtonText: 'Chấp nhận',
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            // Xử lý khi người dùng ấn "Xác nhận"
                             location.reload()
-                        } else if (result.dismiss === Swal.DismissReason.cancel) {
-                            // Xử lý khi người dùng ấn "Quay lại" hoặc click bên ngoài hộp thoại
-                            console.log('Người dùng đã quay lại');
                         }
                     });
                 }
-
             },
             error: function (xhr, status, error) {
                 console.log("Loi khi gui yeu cau ajax"+ error);
             }
         })
-    })
-    }
-
-)
+    });
+});
 
 // Add pre-order payment button handler
 $(document).ready(function () {
