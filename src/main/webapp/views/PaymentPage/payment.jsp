@@ -650,8 +650,8 @@
                 params.append('phoneNumber', phonePay);
                 params.append('username', namePay);
                 params.append('totalAmount', totalAmount || 50000);
-
                 params.append('ship', shippingFee);
+                params.append('isPreOrder', '<%=isPreOrder%>');
 
                 fetch("http://localhost:8080/HandMadeStore/payment-momo", {
                     method: "POST",

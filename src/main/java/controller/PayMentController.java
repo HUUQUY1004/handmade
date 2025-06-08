@@ -192,9 +192,37 @@ public class PayMentController extends HttpServlet {
             accessCount = 0;
             sessions.setAttribute("accessCount", accessCount);
         }
-//           Xoasa sesion gio hàng
-        orderZ.addOrder(order, cart, user);
-        cart.clear();
+
+        // Check if this is a pre-order payment
+        boolean isPreOrder = req.getParameter("isPreOrder") != null && req.getParameter("isPreOrder").equals("true");
+        
+        if (isPreOrder) {
+            // Create a temporary cart with only pre-order items
+            Cart preOrderCart = new Cart();
+            for (Map.Entry<Integer, Item> entry : cart.getItems().entrySet()) {
+                Item item = entry.getValue();
+                if (item.getProduct().getIsSale() == 3 && item.getProduct().getStock() == 0) {
+                    model.bean.PreOrder preOrder = model.service.PreOrderService.getInstance().getPreOrderById(item.getProduct().getId());
+                    if (preOrder != null && preOrder.getAmount() > 0) {
+                        preOrderCart.getItems().put(entry.getKey(), item);
+                    }
+                }
+            }
+            
+            // Add order with pre-order items only
+            orderZ.addOrder(order, preOrderCart, user);
+            
+            // Remove only pre-order items from the original cart
+            cart.getItems().entrySet().removeIf(entry -> {
+                Item item = entry.getValue();
+                return item.getProduct().getIsSale() == 3 && item.getProduct().getStock() == 0;
+            });
+        } else {
+            // Normal order - clear entire cart
+            orderZ.addOrder(order, cart, user);
+            cart.clear();
+        }
+        
         req.getSession().setAttribute("cart", cart);
         resp.setStatus(HttpServletResponse.SC_OK);
         resp.getWriter().print("{\"success\": true, \"message\": \"Đơn hàng đã được tạo.\"}");
