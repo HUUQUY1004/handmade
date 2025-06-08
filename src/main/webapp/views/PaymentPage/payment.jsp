@@ -467,7 +467,7 @@
         });
         const startMillis = parseInt($('#paymentStartTime').val());
         const countDownEl = document.getElementById('count-down');
-        const countdownTime = 10 * 60 * 1000; // 2 phút = 120000 ms
+        const countdownTime = 1 * 60 * 1000; // 2 phút = 120000 ms
         const endTime = startMillis + countdownTime;
 
         function updateCountdown() {
