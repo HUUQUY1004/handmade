@@ -39,6 +39,7 @@
     <script src="https://cdn.datatables.net/v/bs4-4.6.0/jq-3.7.0/dt-2.0.6/datatables.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <style>
         #detailOrder {
             position: fixed;
@@ -150,15 +151,11 @@
                     <tr class="text-center sticky-top">
                         <th class="text-nowrap">Mã ĐH</th>
                         <th class="text-nowrap">Mã KH</th>
-                        <th class="text-nowrap">Ảnh custom</th>
+                        <th class="text-nowrap">Mã Sản phẩm</th>
                         <th class="text-nowrap">Ngày đặt Hàng</th>
-                        <th class="text-nowrap">Ngày giao hàng</th>
-                        <th class="text-nowrap">Địa chỉ</th>
-                        <th class="text-nowrap">Tùy chọn</th>
-                        <th class="text-nowrap">Số điện thoại</th>
-                        <th class="text-nowrap">Ghi chú</th>
                         <th class="text-nowrap">Trạng Thái</th>
                         <th class="text-nowrap" colspan="2">Chức năng</th>
+                        <th class="text-nowrap">Chi tiết</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -175,20 +172,11 @@
                         <td class="text-center">
                             <%= (customer != null) ? customer.getId() : "N/A" %>
                         </td>
-                        <td class="text-start">
-                            <img src="<%=request.getContextPath()+"/"+o.getImagePath()%>"  width="100px" height="100px">
+                        <td class="text-center">
+                            <%= o.getProductId() %>
                         </td>
                         <td class="text-start"><%=o.getOrderDate()%>
                         </td>
-                        <td class="text-start"><%=o.getRecieveDate()%>
-                        </td>
-                        <td class="text-start"><%=o.getAddress()%>
-                        </td>
-                        <td class="text-start"><%=o.getOtherCustom()%>
-                        </td>
-                        <td class="text-start"><%=o.getTel()%>
-                        </td>
-                        <td class="text-start"><%=o.getNote()%>
                         </td>
                         <td>
                             <span class="badge" style="background-color:<%=o.getStatusAsColor()%>;">
@@ -205,6 +193,9 @@
                                 Hủy đơn
                             </button>
                         </td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-info" onclick='showDetailModal(<%=o.getId()%>)'>Chi tiết</button>
+                        </td>
                     </tr>
                     <%
                             }
@@ -220,6 +211,23 @@
                value="<%=request.getAttribute("currentPageNumber")==null?0:request.getAttribute("currentPageNumber")%>">
     </form>
     <div id="detailOrder" style="display:none;">
+    </div>
+</div>
+<!-- Modal chi tiết đơn hàng custom -->
+<div class="modal fade" id="orderDetailModal" tabindex="-1" aria-labelledby="orderDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="orderDetailModalLabel">Chi tiết đơn hàng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body" id="modalDetailContent">
+                    <%--Nội dung--%>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
     </div>
 </div>
 <input type="hidden" id="rowIndex">
@@ -368,6 +376,29 @@
                 });
             }
         });
+    }
+
+    function showDetailModal(orderId) {
+        // console.log("clicked", orderId);
+        <%--console.log('<%=request.getContextPath()%>/getOrderDetail?id=' + orderId);--%>
+        fetch('<%=request.getContextPath()%>/getOrderDetail?id=' + orderId)
+            .then(res => {
+                if (!res.ok) throw new Error('Lỗi khi gọi API: ' + res.status);
+                return res.json();
+            })
+            .then(order => {
+                let html = `
+                    <p><strong>Ảnh custom:</strong><br><img src="${order.imagePath}" width="150"></p>
+                    <p><strong>Ngày giao hàng:</strong> ${order.recieveDate}</p>
+                    <p><strong>Địa chỉ:</strong> ${order.address}</p>
+                    <p><strong>Tùy chọn:</strong> ${order.otherCustom}</p>
+                    <p><strong>SĐT:</strong> ${order.tel}</p>
+                    <p><strong>Ghi chú:</strong> ${order.note}</p>
+                `;
+                document.getElementById("modalDetailContent").innerHTML = html;
+                let modal = new bootstrap.Modal(document.getElementById("orderDetailModal"));
+                modal.show();
+            });
     }
 
 
