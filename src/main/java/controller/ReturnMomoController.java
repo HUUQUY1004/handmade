@@ -27,6 +27,16 @@ public class ReturnMomoController extends HttpServlet {
     OrderDAO orderDAO = new OrderDAO();
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // Set character encoding for request and response
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("text/html;charset=UTF-8");
+
+        HttpSession session = request.getSession();
+        User user = (User) session.getAttribute("auth");
+        Cart cart = (Cart) session.getAttribute("cart");
+        OrderDAO orderZ = new OrderDAO();
+
         try {
             // Lấy tất cả parameters từ MoMo
             String partnerCode = request.getParameter("partnerCode");
@@ -76,16 +86,13 @@ public class ReturnMomoController extends HttpServlet {
                 }
             }
 
-            HttpSession session = request.getSession();
-            User user = (User) session.getAttribute("auth");
-            Cart cart = (Cart) session.getAttribute("cart");
-            if ("0".equals(resultCode)) {
+            if (resultCode.equals("0")) {
                 // Thanh toán thành công
                 System.out.println("Payment SUCCESS");
-                String address = (String) session.getAttribute("address");
-                String phone = (String) session.getAttribute("phone");
-                String  receiver= (String) session.getAttribute("receiver");
-//                Integer totalPay = (Integer) session.getAttribute("totalPay");
+                String encodedAddress = request.getParameter("address");
+                String address = encodedAddress != null ? java.net.URLDecoder.decode(encodedAddress, "UTF-8") : "";
+                String phone = request.getParameter("phone");
+                String receiver = request.getParameter("receiver");
                 Integer ship = null;
                 Object shipObj = session.getAttribute("ship");
                 if (shipObj instanceof Integer) {
@@ -100,8 +107,6 @@ public class ReturnMomoController extends HttpServlet {
                 } else {
                     ship = 0; // Default shipping fee
                 }
-
-                OrderDAO orderZ = new OrderDAO();
 
                 Order order = new Order();
                 order.setConsigneeName(receiver);

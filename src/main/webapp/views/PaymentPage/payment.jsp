@@ -69,7 +69,19 @@
 
 <%
     boolean isPreOrder = request.getParameter("isPreOrder") != null && request.getParameter("isPreOrder").equals("true");
-    boolean hasPreOrderProducts = request.getParameter("hasPreOrderProducts") != null && request.getParameter("hasPreOrderProducts").equals("true");
+    boolean hasPreOrderProducts = false;
+    
+    // Check if there are any pre-order products with no stock and available pre-order amount
+    for (Map.Entry<Integer, Item> entry : cart.getItems().entrySet()) {
+        Item item = entry.getValue();
+        if (item.getProduct().getIsSale() == 3 && item.getProduct().getStock() == 0) {
+            model.bean.PreOrder preOrder = model.service.PreOrderService.getInstance().getPreOrderById(item.getProduct().getId());
+            if (preOrder != null && preOrder.getAmount() > 0) {
+                hasPreOrderProducts = true;
+                break;
+            }
+        }
+    }
     
     // Create a separate map for pre-order items without modifying the original cart
     Map<Integer, Item> preOrderItems = new HashMap<>();
@@ -86,7 +98,7 @@
     }
 %>
 
-<form id="formPayment" action="<%=request.getContextPath()%>/payment" method="post">
+<form id="formPayment" action="<%=request.getContextPath()%>/payment" method="post" accept-charset="UTF-8">
     <div class="row">
         <div class="col-lg-8 col-sm-12 p-0">
             <div class="h1 border-bottom alert ps-0 m-0 " style="height: 12%">
@@ -588,7 +600,7 @@
                 console.log({
                     namePay: namePay,
                     phonePay: phonePay,
-                    formattedAddress: formattedAddress,
+                    formattedAddress: encodeURIComponent(formattedAddress),
                     shippingFee: shippingFee,
                     totalAmount: totalAmount
                 })
@@ -598,7 +610,7 @@
                     data: {
                         namePay: namePay,
                         phonePay: phonePay,
-                        formattedAddress: formattedAddress,
+                        formattedAddress: encodeURIComponent(formattedAddress),
                         shippingFee: shippingFee,
                         totalAmount: totalAmount
                     },
@@ -646,7 +658,7 @@
             } else if (paymentMethod === "MOMO") {
                 console.log("Total Amount:", totalAmount)
                 const params = new URLSearchParams();
-                params.append('address', formattedAddress);
+                params.append('address', encodeURIComponent(formattedAddress));
                 params.append('phoneNumber', phonePay);
                 params.append('username', namePay);
                 params.append('totalAmount', totalAmount || 50000);
@@ -656,15 +668,15 @@
                 fetch("http://localhost:8080/HandMadeStore/payment-momo", {
                     method: "POST",
                     headers: {
-                        "Content-Type": "application/x-www-form-urlencoded"
+                        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
                     },
                     body: params
                 })
-                    .then(res => res.json())
-                    .then(data => {
-                        window.location.href = data.payUrl;
-                    })
-                    .catch(console.error);
+                .then(res => res.json())
+                .then(data => {
+                    window.location.href = data.payUrl;
+                })
+                .catch(console.error);
             } else {
                 Swal.fire({
                     icon: 'error',
