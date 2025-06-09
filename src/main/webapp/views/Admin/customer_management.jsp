@@ -68,25 +68,25 @@
         <input type="text" name="filter" value="findCustomer" style="display: none"></p>
 
         <div class="row input-group mb-3 justify-content-center">
-            <div class="d-flex justify-content-center">
+            <div class="d-flex justify-content-center mb-2">
                 <a href="<%=request.getContextPath()%>/admin/customer?func=customer_management&filter=allCustomer"
-                   class="btn btn-outline-secondary" type="button">Tất cả</a>
+                   class="btn btn-outline-secondary " type="button"><i class="fa-solid fa-users-line"></i> Tất cả</a>
                 <a href="<%=request.getContextPath()%>/admin/customer?func=customer_management&filter=owner"
-                   class="btn btn-outline-secondary" type="button">Chủ hệ thống</a>
+                   class="btn btn-outline-info ms-2" type="button"><i class="fa-solid fa-crown"></i> Chủ hệ thống</a>
                 <a href="<%=request.getContextPath()%>/admin/customer?func=customer_management&filter=admin"
-                   class="btn btn-outline-secondary" type="button">Quản lý</a>
+                   class="btn btn-outline-success ms-2" type="button"><i class="fa-solid fa-user-tie"></i> Quản lý</a>
                 <a href="<%=request.getContextPath()%>/admin/customer?func=customer_management&filter=user"
-                   class="btn btn-outline-secondary" type="button">Người dùng</a>
+                   class="btn btn-outline-warning ms-2" type="button"><i class="fa-solid fa-users"></i> Người dùng</a>
                 <a href="<%=request.getContextPath()%>/admin/customer?func=customer_management&filter=lockUsers"
-                   class="btn btn-outline-secondary" type="button">Người dùng đã khóa</a>
+                   class="btn btn-outline-danger ms-2" type="button"><i class="fa-solid fa-user-lock"></i> Người dùng đã khóa</a>
             </div>
             <%if (user.isOwn()) {%>
             <button
-                    class="btn btn-outline-secondary col-lg-2" type="button" onclick="showAddUserBox()">Thêm tài khoản
+                    class="btn btn-outline-primary col-lg-2" type="button" onclick="showAddUserBox()"><i class="fa-solid fa-user-plus"></i> Thêm tài khoản
             </button>
-            <div id="add_user" class="w-50 bg-secondary p-3 rounded" style="display: none">
+            <div id="add_user" class="w-50 p-3 rounded mt-5" style="display: none;   background: #accfee">
                 <div class="form-group">
-                    <label for="name">Tên</label>
+                    <label for="name">Họ và tên</label>
                     <input type="text" class="form-control" id="name" name="name" oninput="checkName()" required>
                     <div class="text-danger" id="resultValidName"></div>
                 </div>
@@ -109,7 +109,7 @@
                 </div>
                 <div class="field">
                     <label for="rePassword">Nhập lại mật khẩu</label>
-                    <input type="password" name="rePassword" id="rePassword" oninput="checkRePassword()" required>
+                    <input type="password"  class="form-control" name="rePassword" id="rePassword" oninput="checkRePassword()" required>
                     <div class="text-danger" id="resultValidRePassword"></div>
                 </div>
                 <div class="form-group">
@@ -129,7 +129,7 @@
         </div>
     </form>
     <%--        table--%>
-    <div class="table-wrapper-scroll-y my-custom-scrollbar d-flex justify-content-center">
+    <div class="table-wrapper-scroll-y my-custom-scrollbar d-flex justify-content-center w-100">
         <table id="data" class="table table-striped table-hover">
             <thead>
             <tr class="text-center sticky-top">

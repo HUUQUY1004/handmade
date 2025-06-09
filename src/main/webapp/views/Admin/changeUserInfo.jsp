@@ -222,7 +222,7 @@
             </button>
         </div>
         <div>
-            <table id="data" class="table table-light gfg">
+            <table id="data" class="table table-light">
                 <thead>
                 <tr class="text-center sticky-top">
                     <th class="text-nowrap">Sản phẩm</th>
@@ -240,11 +240,11 @@
                             showCouter += 1;
                             User customer = UserService.getInstance().getUserById(o.getUserId() + "");
                 %>
-                <tr class="text-center" style=" cursor: pointer"
+                <tr class="text-center" style=" cursor: pointer ; height: 150px"
                     onclick="showOrderDetails(event,this)"
                     id="<%=o.getId()%>"
                 >
-                    <td class="geeks" style="border: 1px solid #c9c9c9;">
+                    <td class="geeks overflow-auto" style="border: 1px solid #c9c9c9">
                         <%!Product p;%>
                         <%
                             for (OrderDetail orderDetail : OrderService.getInstance().getOrderDetailsByOrderId(o.getId()
@@ -648,7 +648,7 @@
                     break;
             }
             const orderHtml = `
-        <tr class="text-center" style="cursor: pointer;" onclick="showOrderDetails(event, this)" id="${order.id}">
+        <tr class="text-center" style="cursor: pointer; height: 150px" onclick="showOrderDetails(event, this)" id="${order.id}">
             <td class="geeks" style="border-top: 1px solid #c9c9c9;border-bottom: 1px solid #c9c9c9; vertical-align: middle">${firstCol}</td>
             <td class="geeks " style="border-top: 1px solid #c9c9c9;border-bottom: 1px solid #c9c9c9; vertical-align: middle" >${order.address}</td>
             <td class="geeks" style="border-top: 1px solid #c9c9c9;border-bottom: 1px solid #c9c9c9; vertical-align: middle">${formattedDate(order.orderDate)}</td>

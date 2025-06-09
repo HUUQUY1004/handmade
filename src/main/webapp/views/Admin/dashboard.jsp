@@ -103,13 +103,13 @@
     </div>
     <!-- Sale & Revenue End -->
 
-    <!-- Sales Chart Start -->
-    <div class="profit container-fluid pt-4 px-4 profit">
-        <div>Doanh thu bán hàng gần nhất <%=LocalDate.now().getYear()%>
-        </div>
-        <hr class="line-split">
-        <canvas id="myCharts" style="width:100%; height: 200px"></canvas>
-    </div>
+<%--    <!-- Sales Chart Start -->--%>
+<%--    <div class="profit container-fluid pt-4 px-4 profit">--%>
+<%--        <div>Doanh thu bán hàng gần nhất <%=LocalDate.now().getYear()%>--%>
+<%--        </div>--%>
+<%--        <hr class="line-split">--%>
+<%--        <canvas id="myCharts" style="width:100%; height: 200px"></canvas>--%>
+<%--    </div>--%>
     <!-- Sales Chart End -->
     <!-- Recent Sales Start -->
     <div class="container-fluid pt-4 px-4 mt-3">
@@ -137,31 +137,31 @@
                             int discountPrice = (int) (InventoryService.getInstance().productPriceIncludeDiscount(o.getId()));
                     %>
                     <tr>
-                        <td><%=o.getId()%>
+                        <td class="text-info"><%=o.getId()%>
                         </td>
-                        <td><%=o.getName()%>
+                        <td class="text-info"><%=o.getName()%>
                         </td>
-                        <td><%=numberFormat.format(o.getCostPrice())%>
+                        <td class="text-info"><%=numberFormat.format(o.getCostPrice())%>
                         </td>
                         <%if ((discountPrice != o.getSellingPrice())) {%>
-                        <td><%= numberFormat.format(
+                        <td class="text-info"><%= numberFormat.format(
                                 discountPrice) + " (" + numberFormat.format(
                                 o.getSellingPrice()) + ")"
                         %>
                         </td>
                         <%} else {%>
-                        <td><%=  numberFormat.format(
+                        <td class="text-info"><%=  numberFormat.format(
                                 o.getSellingPrice())
                         %>
                         </td>
                         <%}%>
-                        <td><%=o.getSoldOut()%>
+                        <td class="text-info"><%=o.getSoldOut()%>
                         </td>
-                        <td><%=o.getQuantityRemaining()%>
+                        <td class="text-info"><%=o.getQuantityRemaining()%>
                         </td>
-                        <td><%=o.getLastModified()%></td>
+                        <td class="text-info"><%=o.getLastModified()%></td>
                         <td><a class="btn btn-sm btn-primary"
-                               href="<%=request.getContextPath()%>/product-detail?id=<%=o.getId()%>">Xem</a></td>
+                               href="<%=request.getContextPath()%>/product-detail?id=<%=o.getId()%>" target="_blank">Xem</a></td>
                     </tr>
                     <%}%>
                     </tbody>

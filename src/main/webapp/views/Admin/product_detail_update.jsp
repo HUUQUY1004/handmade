@@ -58,7 +58,7 @@
 
           accept-charset="UTF-8"
           onsubmit="return false;">
-        <div id="edit_product" class="w-100 p-3 rounded"
+        <div id="edit_product" class="w-100 p-3 rounded "
              style="display: block">
             <h3 class="text-center fw-bold p-3">Thông tin chi tiết sản phẩm #<%=ipd.getId()%>
             </h3>
@@ -129,6 +129,7 @@
                         <div class="form-floating my-2 p-2 col-6">
                             <input type="number" class="form-control" id="sellingPrice" name="sellingPrice"
                                    value="<%=ipd.getSellingPrice()%>"
+                                   style = "width: 115%"
 
                                    oninput="validatePrice()" required
 
@@ -231,10 +232,10 @@
                             </select>
                             <label for="discountId">Chọn giảm giá áp dụng</label>
                         </div>
-                        <div class="mx-5 border">
-                            <h4 class="p-2 text-center">Tổng doanh thu hiện tại <br/>80000 đ</h4>
-                        </div>
-                        <div id="delete_image_box"></div>
+<%--                        <div class="mx-5 border">--%>
+<%--                            <h4 class="p-2 text-center">Tổng doanh thu hiện tại <br/>80.000 đ</h4>--%>
+<%--                        </div>--%>
+                        <div id="delete_image_box" style="background: black"></div>
                     </div>
                 </div>
             </div>
@@ -362,9 +363,9 @@
     function showDeleteImageBox(imageId) {
         const container = document.getElementById('delete_image_box');
         container.innerHTML = `
-        <div>
+        <div style = "background: black">
             <h4 class="text-danger">Bạn sẽ không thể hoàn tác thao tác này!</h1>
-            <button type="button" class="btn btn-outline-secondary" onclick="removeDeleteImageBox()">Hủy</button>
+            <button type="button" class="btn btn-outline-info" onclick="removeDeleteImageBox()">Hủy</button>
             <button type="button" class="btn btn-outline-danger" onclick="deleteImageBox(${imageId})">Tiếp tục xóa ảnh</button>
         </div>`;
         container.style.display = 'block';
