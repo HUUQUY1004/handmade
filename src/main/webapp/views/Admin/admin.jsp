@@ -180,13 +180,13 @@
                                  <%}%>"><i
                         class="fa-brands fa-gratipay me-2"
                 ></i>Thay đổi banners, tips</a>
-                <a href="<%=request.getContextPath()%>/admin?func=support"
-                   class="nav-item nav-link
-                    <%if(func.equals("support")){%>
-                   active
-                    <%}%>"
-                ><i
-                        class="fa-solid fa-phone me-2"></i>Hỗ trợ</a>
+<%--                <a href="<%=request.getContextPath()%>/admin?func=support"--%>
+<%--                   class="nav-item nav-link--%>
+<%--                    <%if(func.equals("support")){%>--%>
+<%--                   active--%>
+<%--                    <%}%>"--%>
+<%--                ><i--%>
+<%--                        class="fa-solid fa-phone me-2"></i>Hỗ trợ</a>--%>
             </div>
         </nav>
     </div>
@@ -196,7 +196,7 @@
     <!-- Content Start -->
     <div class="content">
         <!-- Navbar Start -->
-        <nav class="navbar navbar-expand bg-secondary navbar-dark sticky-top px-4 py-0">
+        <nav class="navbar navbar-expand bg-info navbar-dark sticky-top px-4 py-0">
             <a href="#" class="sidebar-toggler flex-shrink-0">
                 <i class="fa fa-bars"></i>
             </a>

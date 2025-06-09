@@ -104,9 +104,9 @@
         </div>
         <div class="row mb-5 mt-2">
             <div class="col-md-12">
-                <div class="card px-3 py-1">
+                <div class="card px-3 py-1" style="background: #c5ffff">
                     <div class="card-body">
-                        <div class="row mb-4">
+                        <div class="row">
                             <div class="col-1 d-flex justify-content-center">
                                 <strong>STT</strong>
                             </div>
@@ -132,7 +132,7 @@
                         <%int stt = 0;%>
                         <%for (Discount d : discounts) {%>
                         <%stt++;%>
-                        <div class="row border my-2 rounded">
+                        <div class="row border rounded">
                             <div class="col-1 text-center"><%=stt%>
                             </div>
                             <div class="col-md-2 text-center"><%=d.getName()%>
@@ -143,12 +143,12 @@
                             </div>
                             <div class="col-md-1 text-center"><%=d.getPercentageOff() * 100%>
                             </div>
-                            <div class="col-md-1 text-center align-items-center">
+                            <div class="col-md-1 text-center align-items-center ms-4 mt-2">
                                 <button type="button" onclick="showChoiceForDiscount(<%=d.getId()%>)">
                                     <i class="fa-solid fa-list-check"></i>
                                 </button>
                             </div>
-                            <div class="col-md-2 text-center d-flex justify-content-center text-center mt-1">
+                            <div class="col-md-2 text-center d-flex justify-content-center text-center mt-2 ms-5">
                                 <a
                                         href="<%=request.getContextPath()%>/admin/discount?discountAction=edit&editDiscountId=<%=d.getId()%>&editStt=<%=stt%>"
                                         class="mx-4">
@@ -169,42 +169,42 @@
     </div>
     <%--    Add Box--%>
     <div class="row d-flex justify-content-center">
-        <div id="add_discount" class="w-50 bg-secondary p-3 rounded">
-            <div class="text-center fw-bold p-3" style="font-size: 30px; color: #0dcaf0">Thêm khuyến mãi giảm giá</div>
+        <div id="add_discount" class="w-50 bg-dark p-3 rounded">
+            <div class="text-center fw-bold p-3 text-info" style="font-size: 30px">Thêm khuyến mãi giảm giá</div>
             <div class="input-group mb-3">
                 <div class="input-group-prepend me-3">
-                    <span class="input-group-text fw-bold">Tên khuyến mãi</span>
+                    <span class="input-group-text fw-bold text-danger">Tên khuyến mãi</span>
                 </div>
                 <input name="discount_name" type="text" class="form-control" placeholder="Sinh nhật HandmadeStore">
             </div>
             <div class="input-group mb-3">
                 <div class="input-group-prepend me-3">
-                    <span class="input-group-text fw-bold">Giảm giá(%)</span>
+                    <span class="input-group-text fw-bold text-danger">Giảm giá(%)</span>
                 </div>
                 <input name="percentageOff" type="number" class="form-control w-25 percentageOff" placeholder="15" min="0" max="100">
             </div>
             <div class="input-group">
                 <div class="input-group-prepend me-3">
-                    <span class="input-group-text fw-bold">Ngày bắt bắt đầu và ngày kết thúc</span>
+                    <span class="input-group-text fw-bold text-danger">Ngày bắt bắt đầu và ngày kết thúc</span>
                 </div>
                 <input name="startDate" type="date" class="form-control">
                 <input name="endDate" type="date" class="form-control">
             </div>
             <div class="error-message" style="color: red;"></div>
             <div class="d-flex justify-content-end m-0">
-                <button type="button" onclick="hideAddDiscount()" class="btn btn-outline-warning m-3 fs-5 fw-bold"
+                <button type="button" onclick="hideAddDiscount()" class="btn btn-outline-warning m-3 fs-5 fw-bold text-warning"
                         style="color: #eeeeee">Hủy bỏ
                 </button>
                 <button type="submit" name="submit_2_adddiscount" value="adddiscount"
-                        class="btn btn-outline-success m-3 fs-5 fw-bold"
+                        class="btn btn-outline-success m-3 fs-5 fw-bold text-success"
                         style="color: #eeeeee">Hoàn tất
                 </button>
             </div>
         </div>
     </div>
     <%--    Edit Box--%>
-    <div class="row d-flex justify-content-center">
-        <div id="edit_discount" class="w-50 bg-secondary p-3 rounded"
+    <div class="row d-flex justify-content-center ">
+        <div id="edit_discount" class="w-50 bg-dark p-3 rounded overlay"
                 <%if (discountAction != null && discountAction.equals("edit")) {%>
              style="display: block"
                 <%} else {%>
@@ -220,23 +220,23 @@
                 <p>Tên khuyến mãi: <%=editDiscount.getName()%>
                 </p>
             </div>
-            <div class="input-group mb-3">
+            <div class="input-group mb-3" >
                 <div class="input-group-prepend me-3">
-                    <span class="input-group-text fw-bold">Tên khuyến mãi</span>
+                    <span class="input-group-text fw-bold text-danger">Tên khuyến mãi</span>
                 </div>
                 <input type="text" name="editDiscountId" value="<%=editDiscountId%>" style="display:none;">
                 <input name="edit_discount_name" type="text" class="form-control" value="<%=editDiscount.getName()%>">
             </div>
             <div class="input-group mb-3">
                 <div class="input-group-prepend me-3">
-                    <span class="input-group-text fw-bold">Giảm giá(%)</span>
+                    <span class="input-group-text fw-bold text-danger">Giảm giá(%)</span>
                 </div>
                 <input name="edit_percentageOff" type="number" class="form-control w-25 percentageOff" min="0" max="100"
                        value="<%=editDiscount.getPercentageOff()*100%>">
             </div>
             <div class="input-group">
                 <div class="input-group-prepend me-3">
-                    <span class="input-group-text fw-bold">Ngày bắt bắt đầu và ngày kết thúc</span>
+                    <span class="input-group-text fw-bold text-danger">Ngày bắt bắt đầu và ngày kết thúc</span>
                 </div>
                 <%
                     // Định dạng ngày theo "yyyy-MM-dd"
@@ -249,11 +249,11 @@
             </div>
             <div class="error-message" style="color: red;"></div>
             <div class="d-flex justify-content-end m-0">
-                <button type="button" onclick="hideEditDiscount()" class="btn btn-outline-warning m-3 fs-5 fw-bold"
+                <button type="button" onclick="hideEditDiscount()" class="btn btn-outline-warning m-3 fs-5 fw-bold text-warning"
                         style="color: #eeeeee">Hủy bỏ
                 </button>
                 <button type="submit" name="submit_3_editdiscount" value="editdiscount"
-                        class="btn btn-outline-success m-3 fs-5 fw-bold"
+                        class="btn btn-outline-success m-3 fs-5 fw-bold text-success"
                         style="color: #eeeeee">Hoàn tất
                 </button>
             </div>
@@ -262,7 +262,7 @@
     </div>
     <%-- choice box    --%>
     <div class="row justify-content-center">
-        <div id="choice_products_discount" class="w-100 h-75 bg-secondary p-3 rounded">
+        <div id="choice_products_discount" class="w-100 h-100 bg-secondary p-3 rounded" style="margin-top: 60px">
             <div>
                 <div class="container-fluid">
                     <button class="w-100 btn btn-success" onclick="hideChoiceForDiscount()">Thoát</button>
@@ -301,47 +301,47 @@
                             </button>
                         </div>
                     </div>
-                    <div class="m-4 fs-6 d-flex align-items-center">
-                        <div class="d-flex">
-                            <div class="form-group">
-                                <input type="number" class="form-control" id="number"
-                                       placeholder="Nhập số lượng có sẵn">
-                                <div class="text-danger" id="numberValid"></div>
-                            </div>
-                            <div class="mx-2">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="comparison"
-                                           id="flexRadioDefault1" value="1" checked>
-                                    <label class="form-check-label" for="flexRadioDefault1">
-                                        Dựa vào số lượng lớn hơn
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="comparison"
-                                           id="flexRadioDefault3" value="0">
-                                    <label class="form-check-label" for="flexRadioDefault3">
-                                        Dựa vào số lượng tương ứng
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="comparison"
-                                           id="flexRadioDefault2" value="-1">
-                                    <label class="form-check-label" for="flexRadioDefault2">
-                                        Dựa vào số lượng ít hơn
-                                    </label>
-                                </div>
-                            </div>
+<%--                    <div class="m-4 fs-6 d-flex align-items-center">--%>
+<%--                        <div class="d-flex">--%>
+<%--                            <div class="form-group">--%>
+<%--                                <input type="number" class="form-control" id="number"--%>
+<%--                                       placeholder="Nhập số lượng có sẵn">--%>
+<%--                                <div class="text-danger" id="numberValid"></div>--%>
+<%--                            </div>--%>
+<%--                            <div class="mx-2">--%>
+<%--                                <div class="form-check">--%>
+<%--                                    <input class="form-check-input" type="radio" name="comparison"--%>
+<%--                                           id="flexRadioDefault1" value="1" checked>--%>
+<%--                                    <label class="form-check-label" for="flexRadioDefault1">--%>
+<%--                                        Dựa vào số lượng lớn hơn--%>
+<%--                                    </label>--%>
+<%--                                </div>--%>
+<%--                                <div class="form-check">--%>
+<%--                                    <input class="form-check-input" type="radio" name="comparison"--%>
+<%--                                           id="flexRadioDefault3" value="0">--%>
+<%--                                    <label class="form-check-label" for="flexRadioDefault3">--%>
+<%--                                        Dựa vào số lượng tương ứng--%>
+<%--                                    </label>--%>
+<%--                                </div>--%>
+<%--                                <div class="form-check">--%>
+<%--                                    <input class="form-check-input" type="radio" name="comparison"--%>
+<%--                                           id="flexRadioDefault2" value="-1">--%>
+<%--                                    <label class="form-check-label" for="flexRadioDefault2">--%>
+<%--                                        Dựa vào số lượng ít hơn--%>
+<%--                                    </label>--%>
+<%--                                </div>--%>
+<%--                            </div>--%>
 
-                            <div>
-                                <button class="btn btn-primary" type="button" onclick="selectByQuantity()">
-                                    Áp dụng
-                                </button>
-                                <button class="btn btn-primary" type="button" onclick="unSelectByQuantity()">
-                                    Hủy bỏ áp dụng
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+<%--                            <div>--%>
+<%--                                <button class="btn btn-primary" type="button" onclick="selectByQuantity()">--%>
+<%--                                    Áp dụng--%>
+<%--                                </button>--%>
+<%--                                <button class="btn btn-primary" type="button" onclick="unSelectByQuantity()">--%>
+<%--                                    Hủy bỏ áp dụng--%>
+<%--                                </button>--%>
+<%--                            </div>--%>
+<%--                        </div>--%>
+<%--                    </div>--%>
                     <%--search--%>
                     <div class="row m-4 fs-6 d-flex align-items-center">
                         <div class="col">

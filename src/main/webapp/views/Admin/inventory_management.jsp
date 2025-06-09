@@ -94,7 +94,7 @@
 
 
         #edit-info {
-            background-color: #FBFADA;
+            background-color: #eff6ff;
             color: #000;
             box-shadow: 1px 3px 5px #aaa;
             border-radius: 5px;
@@ -192,7 +192,7 @@
                         <input type="text" placeholder="Nhập mã sản phẩm" id="searchInput">
                     </div>
                 <table id="table-inventory" class="display table table-striped table-hover table-bordered">
-                    <thead class="table-dark">
+                    <thead class="table-danger">
                     <tr>
                         <th>Xem</th>
                         <th>Mã</th>
@@ -287,7 +287,7 @@
                 {
                     layout: {
                         topStart: {
-                            buttons: ['copy', 'csv', 'excel', 'pdf', 'print']
+                            buttons: ['copy','excel', 'pdf', 'print']
                         }
                     }
                     ,

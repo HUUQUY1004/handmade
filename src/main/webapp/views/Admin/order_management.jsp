@@ -167,12 +167,11 @@
                     hàng thành công
                 </button>
             </div>
-            <div class="table-wrapper-scroll-y my-custom-scrollbar d-flex justify-content-center mt-3">
+            <div class="table-wrapper-scroll-y my-custom-scrollbar d-flex justify-content-center mt-3 mx-3">
                 <table id="data" class="table table-striped table-hover">
                     <thead>
                     <tr class="text-center sticky-top">
                         <th class="text-nowrap">Mã ĐH</th>
-                        <th class="text-nowrap">Mã KH</th>
                         <th class="text-nowrap">Tên Khách Hàng</th>
                         <th class="text-nowrap">Địa Chỉ Giao</th>
                         <th class="text-nowrap">Ngày Đặt Hàng</th>
@@ -193,8 +192,6 @@
                         id="<%=o.getId()%>"
                     >
                         <td class="text-center"><%=o.getId()%>
-                        </td>
-                        <td class="text-center"><%=customer.getId()%>
                         </td>
                         <td class="text-start"><%=customer.getName()%>
                         </td>
