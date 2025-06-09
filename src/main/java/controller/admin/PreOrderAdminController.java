@@ -5,6 +5,7 @@ import model.bean.Product;
 import model.service.PreOrderService;
 import model.service.ProductService;
 
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -21,7 +22,7 @@ import java.util.TimerTask;
 @WebServlet(name = "PreOrderAdminController", urlPatterns = {"/admin/preorder/*"})
 public class PreOrderAdminController extends HttpServlet {
     private Timer timer;
-    private static final long CHECK_INTERVAL = 60 * 1000; // Check every 1 mins
+    private static final long CHECK_INTERVAL = 60000; // Check every minute
 
     @Override
     public void init() throws ServletException {
@@ -50,6 +51,9 @@ public class PreOrderAdminController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         String action = request.getPathInfo();
+        
+        // Run check on every page load for debugging
+        checkAndProcessExpiredPreOrders();
         
         if ("/details".equals(action)) {
             getPreOrderDetails(request, response);
@@ -144,11 +148,23 @@ public class PreOrderAdminController extends HttpServlet {
             Date currentDate = new Date();
             
             if (allPreOrders != null) {
+                System.out.println("Found " + allPreOrders.size() + " pre-orders to check");
                 for (PreOrder preOrder : allPreOrders) {
+                    System.out.println("Checking pre-order ID: " + preOrder.getId() + 
+                                     ", Amount: " + preOrder.getAmount() + 
+                                     ", End Date: " + preOrder.getDateEnd());
+                    
                     if (preOrder.getDateEnd().before(currentDate)) {
-                        // Update product quantity
-                        Product product = ProductService.getInstance().getProductById(preOrder.getProductId());
+                        System.out.println("Processing expired pre-order: " + preOrder.getId());
+                        
+                        // Use pre-order's ID to find the product since they share the same ID
+                        Product product = ProductService.getInstance().getProductById(String.valueOf(preOrder.getId()));
                         if (product != null) {
+                            System.out.println("Found product: " + product.getId() + 
+                                             ", Name: " + product.getName() + 
+                                             ", Current isSale: " + product.getIsSale() + 
+                                             ", Current stock: " + product.getStock());
+                            
                             // Update product status to available (isSale = 1)
                             ProductService.getInstance().editProduct(
                                 String.valueOf(product.getId()),
@@ -159,18 +175,27 @@ public class PreOrderAdminController extends HttpServlet {
                                 String.valueOf(product.getDiscountId()),
                                 1
                             );
+                            System.out.println("Updated product isSale to 1");
                             
                             // Increase stock
                             ProductService.getInstance().increaseStock(product.getId(), preOrder.getAmount());
+                            System.out.println("Increased stock by: " + preOrder.getAmount());
+                            
+                            // Remove the expired pre-order
+                            PreOrderService.getInstance().removePreOrderById(preOrder.getId());
+                            System.out.println("Removed pre-order");
+                        } else {
+                            System.out.println("Product not found for ID: " + preOrder.getId());
                         }
-                        
-                        // Remove the expired pre-order
-                        PreOrderService.getInstance().removePreOrderById(preOrder.getId());
+                    } else {
+                        System.out.println("Pre-order not expired yet");
                     }
                 }
+            } else {
+                System.out.println("No pre-orders found");
             }
         } catch (Exception e) {
-            // Log the error but don't throw it since this runs in a background thread
+            System.out.println("Error in checkAndProcessExpiredPreOrders: " + e.getMessage());
             e.printStackTrace();
         }
     }

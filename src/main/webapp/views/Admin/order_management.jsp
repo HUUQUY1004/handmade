@@ -93,6 +93,16 @@
         #data td:nth-child(4) {
             width: 20%;
         }
+
+        .preorder-yes {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .preorder-no {
+            color: #dc3545;
+            font-weight: bold;
+        }
     </style>
 </head>
 <%
@@ -178,6 +188,7 @@
                         <th class="text-nowrap">Tổng Tiền Hóa Đơn</th>
                         <th class="text-nowrap">Phí Vận Chuyển</th>
                         <th class="text-nowrap">Tổng Hóa Đơn</th>
+                        <th class="text-nowrap">Đặt Trước</th>
                         <th class="text-nowrap">Trạng Thái</th>
                     </tr>
                     </thead>
@@ -186,6 +197,15 @@
                         for (Order o : orders) {
                             if (o != null) {
                                 User customer = UserService.getInstance().getUserById(o.getUserId() + "");
+                                boolean hasPreOrder = false;
+                                List<OrderDetail> orderDetails = OrderService.getInstance().getOrderDetailsByOrderId(String.valueOf(o.getId()));
+                                for (OrderDetail detail : orderDetails) {
+                                    Product product = ProductService.getInstance().getProductById(detail.getProductId());
+                                    if (product != null && product.getIsSale() == 3) {
+                                        hasPreOrder = true;
+                                        break;
+                                    }
+                                }
                     %>
                     <tr class="text-center" style=" cursor: pointer;"
                         onclick="showOrderDetails(event,this)"
@@ -204,6 +224,8 @@
                         <td><%=numberFormat.format(o.getShippingFee())%>
                         </td>
                         <td><%=numberFormat.format(o.getTotalPrice() + o.getShippingFee())%>
+                        </td>
+                        <td><%=hasPreOrder ? "<span class='preorder-yes'>Có</span>" : "<span class='preorder-no'>Không</span>"%>
                         </td>
                         <td
                                 style="background-color: <%=o.getStatusAsColor()%>; color: #ffffff"

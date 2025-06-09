@@ -141,10 +141,15 @@ public class PayMentController extends HttpServlet {
         Cart cart = (Cart) sessions.getAttribute("cart");
         OrderDAO orderZ = new OrderDAO();
 
+        // Set character encoding for request and response
         req.setCharacterEncoding("UTF-8");
+        resp.setCharacterEncoding("UTF-8");
+        resp.setContentType("text/html;charset=UTF-8");
+
         String namePay = req.getParameter("namePay");
         String phonePay = req.getParameter("phonePay");
-        String address = req.getParameter("formattedAddress");
+        String encodedAddress = req.getParameter("formattedAddress");
+        String address = encodedAddress != null ? java.net.URLDecoder.decode(encodedAddress, "UTF-8") : "";
         String shippingFee = req.getParameter("shippingFee");
         String totalAmount = req.getParameter("totalAmount");
 

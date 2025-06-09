@@ -66,6 +66,9 @@
 
     <%--    END DATATABLES.  --%>
     <title>Kho hàng HandmadeStore</title>
+    <!-- Add SweetAlert2 CSS and JS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
     <style>
         body {
             background-color: #e5e5e5;
@@ -556,7 +559,12 @@
         const dateEnd = $('#dateEnd').val();
 
         if (!amount || !dateEnd) {
-            alert('Vui lòng điền đầy đủ thông tin');
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi!',
+                text: 'Vui lòng điền đầy đủ thông tin',
+                confirmButtonText: 'OK'
+            });
             return;
         }
 
@@ -572,19 +580,42 @@
             },
             success: function(response) {
                 if (response.status === 'success') {
-                    alert('Tạo đặt hàng trước thành công');
-                    $('#preOrderModal').modal('hide');
-                    location.reload();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công!',
+                        text: 'Tạo đặt hàng trước thành công',
+                        confirmButtonText: 'OK'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $('#preOrderModal').modal('hide');
+                            location.reload();
+                        }
+                    });
                 } else {
-                    alert('Có lỗi xảy ra: ' + response.message);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi!',
+                        text: 'Có lỗi xảy ra: ' + response.message,
+                        confirmButtonText: 'OK'
+                    });
                 }
             },
             error: function(xhr) {
                 try {
                     const response = JSON.parse(xhr.responseText);
-                    alert(response.message);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi!',
+                        text: response.message,
+                        confirmButtonText: 'OK'
+                    });
                 } catch (e) {
-                    alert("Có lỗi xảy ra khi tạo đặt hàng trước");
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi!',
+                        text: 'Có lỗi xảy ra khi tạo đặt hàng trước',
+                        confirmButtonText: 'OK'
+                    });
                 }
             },
             complete: function() {
