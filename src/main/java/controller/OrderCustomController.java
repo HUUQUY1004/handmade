@@ -98,7 +98,7 @@ public class OrderCustomController extends HttpServlet {
 
         int productId = Integer.parseInt(req.getParameter("productId"));
 
-        String uploadPath = "C:\\Users\\HP\\Desktop\\handmade\\handmade\\src\\main\\webapp\\images\\custom";
+        String uploadPath = "C:\\Users\\ASUS\\Documents\\TLH\\TMDT\\handmade\\src\\main\\webapp\\images\\custom";
         File uploadDir = new File(uploadPath);
         if (!uploadDir.exists()) uploadDir.mkdirs();
 
