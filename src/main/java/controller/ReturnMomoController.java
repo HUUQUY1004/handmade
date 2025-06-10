@@ -89,10 +89,9 @@ public class ReturnMomoController extends HttpServlet {
             if (resultCode.equals("0")) {
                 // Thanh toán thành công
                 System.out.println("Payment SUCCESS");
-                String encodedAddress = request.getParameter("address");
-                String address = encodedAddress != null ? java.net.URLDecoder.decode(encodedAddress, "UTF-8") : "";
-                String phone = request.getParameter("phone");
-                String receiver = request.getParameter("receiver");
+                String address = (String) session.getAttribute("address");
+                String phone = (String) session.getAttribute("phone");
+                String receiver = (String) session.getAttribute("receiver");
                 Integer ship = null;
                 Object shipObj = session.getAttribute("ship");
                 if (shipObj instanceof Integer) {
@@ -182,7 +181,7 @@ public class ReturnMomoController extends HttpServlet {
             e.printStackTrace();
             request.setAttribute("status", "error");
             request.setAttribute("message", "Có lỗi xảy ra trong quá trình xử lý thanh toán");
-            request.getRequestDispatcher("/user/paymentResult.jsp").forward(request, response);
+            request.getRequestDispatcher("views/ReturnMomo/paymentResult.jsp").forward(request, response);
         }
     }
 
